@@ -1,3 +1,77 @@
-.chat-page {
-  flex-grow: 1; /* Allows the ChatPage to take up remaining space */
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+  height: 100%; /* Make the chat page container take full height */
+}
+
+.chat-panel {
+  flex: 2;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Create a container for the chat content */
+.chat-content-container {
+  flex: 1;
+  max-height: 80vh; /* Adjust the max-height as needed */
+  overflow-y: auto; /* Add vertical scroll if content exceeds max-height */
+}
+
+.chat-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.document-panel {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.document-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.document-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #ccc;
+  margin: 10px 0;
+}
+
+/* Message Styling */
+/* Message Styling */
+.user-input {
+  background-color: #4caf50; /* Green background for user messages */
+  color: white;
+  align-self: flex-end;
+  margin-right: 10px; /* Adjust margin-right for alignment */
+  padding: 10px; /* Add padding to messages */
+  border-radius: 15px; /* Add curved borders */
+  margin-bottom: 10px; /* Add space between messages */
+}
+
+.model-response {
+  background-color: #e6e6e6; /* Gray background for model responses */
+  align-self: flex-start; /* Align model responses to the left */
+  margin-left: 10px; /* Adjust margin-left for alignment */
+  padding: 10px; /* Add padding to messages */
+  border-radius: 15px; /* Add curved borders */
+  margin-bottom: 10px; /* Add space between messages */
 }
