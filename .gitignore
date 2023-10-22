@@ -1,11 +1,12 @@
 # dependencies
+frontend/node_modules
 /node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
-
+/backend/Pipfile.lock
 # production
 /build
 frontend/package-lock.json
