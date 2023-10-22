@@ -1,0 +1,3 @@
+.chat-page {
+  flex-grow: 1; /* Allows the ChatPage to take up remaining space */
+}
