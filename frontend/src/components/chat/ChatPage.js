@@ -1,25 +1,47 @@
 import React, { useState } from "react";
 import "./ChatPage.css";
+import { HfInference } from "@huggingface/inference";
+
+const HF_ACCESS_TOKEN = process.env.REACT_APP_HF_ACCESS_TOKEN;
+const inference = new HfInference(HF_ACCESS_TOKEN);
 
 function ChatPage() {
+  const [prevInputs, setPrevInputs] = useState([]);
+  const [prevResponses, setPrevResponses] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState([]);
 
-  function giveInput() {
+  async function giveInput() {
     if (inputValue.trim() !== "") {
-      // This is the hardcoded response
-      const responseText = "Thanks for your message! This is a hardcoded response.";
+      try {
+        const model = await inference.conversational({
+          model: "microsoft/DialoGPT-medium",
+          inputs: {
+            past_user_inputs: prevInputs,
+            generated_responses: prevResponses,
+            text: inputValue,
+          },
+        });
 
-      const newMessage = { type: 'user', content: inputValue };
-      const newResponse = { type: 'model', content: responseText };
-      setMessages([...messages, newMessage, newResponse]);
-      setInputValue("");
+        setPrevInputs([...prevInputs, inputValue]);
+
+        setPrevResponses([...prevResponses, model.generated_text]);
+
+        const newMessage = { type: "user", content: inputValue };
+        const newResponse = { type: "model", content: model.generated_text };
+        setMessages([...messages, newMessage, newResponse]);
+        setInputValue("");
+      } catch (error) {
+        console.error("Error:", error);
+        // Handle error appropriately
+      }
     }
   }
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
+
       giveInput();
     }
   };
@@ -30,8 +52,13 @@ function ChatPage() {
         <div className="chat-header">Trace AI</div>
         <div className="chat-content">
           {messages.map((message, index) => (
-            <div key={index} className={message.type === 'user' ? 'user-input' : 'model-response'}>
-                {message.content}
+            <div
+              key={index}
+              className={
+                message.type === "user" ? "user-input" : "model-response"
+              }
+            >
+              {message.content}
             </div>
           ))}
         </div>
@@ -69,5 +96,4 @@ function ChatPage() {
     </div>
   );
 }
-
 export default ChatPage;
