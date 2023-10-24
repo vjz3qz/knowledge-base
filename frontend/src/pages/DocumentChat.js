@@ -22,7 +22,7 @@ function DocumentChat() {
     const onUpload = async () => {
       const formData = new FormData();
       formData.append('file', pdfFile);
-      const result = await axios.post("http://localhost:5001/upload", formData);
+      const result = await axios.post("http://localhost:5001/api/v1/upload", formData);
       if (result.data.id) {
         setPdfId(result.data.id);
         setSummary(result.data.summary);  // Set the summary after uploading
@@ -36,7 +36,7 @@ function DocumentChat() {
         conversation_history: messages.map(m => m.content),
         id: pdfId
       };
-      const result = await axios.post("http://localhost:5001/chat_interact", payload);
+      const result = await axios.post("http://localhost:5001/api/v1/chat_interact", payload);
       const responseMessage = result.data.response;
       setMessages([...messages, { type: 'user', content: inputValue }, { type: 'server', content: responseMessage }]);
       setInputValue("");
