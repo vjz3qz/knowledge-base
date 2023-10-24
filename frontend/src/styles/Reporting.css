@@ -1,0 +1,55 @@
+/* CSS */
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 80px;
+}
+
+.read-only {
+  background-color: #f3f3f3;
+}
+
+input, textarea, select, button {
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Optional: Adds space between the buttons */
+}
+
+
+input {
+  border: 1px solid #ccc; /* or whatever border style you prefer */
+  outline: none; /* removes the browser default focus outline */
+}
+
+textarea {
+  border: 1px solid #ccc; /* or whatever border style you prefer */
+  outline: none; /* removes the browser default focus outline */
+}
