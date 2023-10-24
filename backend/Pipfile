@@ -5,7 +5,15 @@ name = "pypi"
 
 [packages]
 flask = "*"
+streamlit = "*"
+langchain = "*"
+openai = "*"
+pypdf2 = "*"
 flask-cors = "*"
+async-timeout = "*"
+pypdf = "*"
+tiktoken = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

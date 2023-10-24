@@ -10,13 +10,13 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
+
 import os
 
 api_key = os.environ.get('OPENAI_API_KEY')
 
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", openai_api_key=api_key)
 
-# We need to split the text using Character Text Split such that it should not increase token size
 text_splitter = CharacterTextSplitter(
     separator="\n",
     chunk_size=800,
@@ -51,7 +51,7 @@ if pdf_file is not None:
                 st.write(summaries)
 
         elif run and page_selection == "Overall Summary":
-            combined_content = ''.join([p.page_content for p in pages])  # we get entire page data
+            combined_content = ''.join([p.page_content for p in pages])  
             texts = text_splitter.split_text(combined_content)
             docs = [Document(page_content=t) for t in texts]
             chain = load_summarize_chain(llm, chain_type="map_reduce")
