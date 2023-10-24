@@ -7,7 +7,7 @@ const Sidebar = () => {
     return (
         <div className="sidebar">
             <div className="title">
-                <FiUser size={30} />
+                {/* <FiUser size={30} /> */}
                 <h2>Trace AI</h2>
             </div>
             {/* <div className="search-section">
@@ -15,7 +15,7 @@ const Sidebar = () => {
                 <input type="text" placeholder="Search" className="search-bar" />
             </div> */}
             <div className="menu-items">
-                <Link to="/document-search"><FiBarChart className="menu-icon" />Document Search</Link>
+                <Link to="/document-search"><FiSearch className="menu-icon" />Document Search</Link>
                 <Link to="/document-chat"><FiFileText className="menu-icon" />Document Chat</Link>
                 <Link to="/incident-reports"><FiAlertTriangle className="menu-icon" />Incident Reporting</Link>
                 <hr />
