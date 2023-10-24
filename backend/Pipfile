@@ -14,6 +14,7 @@ async-timeout = "*"
 pypdf = "*"
 tiktoken = "*"
 python-dotenv = "*"
+faiss-cpu = "*"
 
 [dev-packages]
 

@@ -11,9 +11,6 @@
   flex-direction: row;
 }
 
-.sidebar-wrapper {
-  flex: 0 0 250px;  /* Fixed width for sidebar */
-}
 
 .content-wrapper {
   flex: 1;  /* Takes remaining width */
