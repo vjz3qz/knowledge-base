@@ -15,6 +15,7 @@ pypdf = "*"
 tiktoken = "*"
 python-dotenv = "*"
 faiss-cpu = "*"
+fpdf = "*"
 boto3 = "*"
 chromadb = "*"
 

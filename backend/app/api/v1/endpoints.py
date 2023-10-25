@@ -1,7 +1,7 @@
 from . import v1
 
-from flask import request, jsonify
-from flask_cors import cross_origin
+from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS, cross_origin
 
 import os
 import tempfile
@@ -16,26 +16,32 @@ from app.utils.determine_intent import determine_intent
 from app.utils.extract_text import extract_text
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
+from app.utils.report_pdf_generator import create_pdf
+
+
+
+
+# Ensure all required environment variables are set
+try:
+    os.environ['OPENAI_API_KEY']
+except KeyError:
+    print('[error]: `API_KEY` environment variable required')
+    sys.exit(1)
+
 from app.utils.document_retriever import upload_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3
 from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma
 
-try:  
-  os.environ['OPENAI_API_KEY']
-except KeyError: 
-  print('[error]: `OPENAI_API_KEY` environment variable required')
-  sys.exit(1)
-
-
 api_key = os.environ.get('OPENAI_API_KEY')
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", openai_api_key=api_key)
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
+                 openai_api_key=api_key)
+
 
 
 
 @v1.route('/upload', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def upload_file():
-    # file
-
+  
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     pdf_file = request.files['file']
@@ -43,7 +49,7 @@ def upload_file():
         return jsonify({"error": "No selected file"}), 400
 
 
-    # Generate a unique identifier for the file
+    # TODO Generate a unique identifier for the file
     file_id = str(uuid.uuid4())
     summary = process_document(pdf_file, file_id)
     # add file to S3 bucket
@@ -64,7 +70,6 @@ def process_document(pdf_file, file_id):
         # Reset the file's pointer to the beginning
         pdf_file.seek(0)
     return summary
-
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -107,7 +112,7 @@ def chat_interact():
 
         elif intent == 'summarize':
             response = summarize_document(texts, llm)
-    
+
     # If there's only a PDF
     elif pdf_id and not conversation_history:
         intent = determine_intent(current_message)
@@ -123,3 +128,33 @@ def chat_interact():
         response = {"error": "Unexpected scenario"}
 
     return jsonify({"response": response})
+
+
+@v1.route('/operator_reporting', methods=['POST'])
+@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
+def operator_reporting():
+    type = request.json['reportType']
+    name = request.json['name']
+    employee_id = request.json['employeeId']
+    role = request.json['role']
+    date = request.json['date']
+
+    data = {'Report Type': type,
+            'Employee Name': name,
+            'Employee ID': employee_id,
+            'Role': role,
+            'Date': date}
+
+    if type == 'incident':
+        data['Time of Incident'] = request.json['typeOfIncident']
+        data['Incident Description'] = request.json['description']
+        data['Incident Fix'] = request.json['fix']
+        data['Incident Notes'] = request.json['notes']
+    else:
+        data['Work Location'] = request.json['workLocation']
+        data['Work Description'] = request.json['workDescription']
+        data['Work Problems'] = request.json['workProblems']
+        data['Work Solutions'] = request.json['workSolutions']
+
+    create_pdf(data)
+    return make_response('', 201)

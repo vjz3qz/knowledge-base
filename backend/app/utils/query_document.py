@@ -4,7 +4,6 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 
 
-
 def query_document(current_message, texts, llm):
     embedding = OpenAIEmbeddings()
     document_search = FAISS.from_texts(texts, embedding)
