@@ -16,6 +16,7 @@ tiktoken = "*"
 python-dotenv = "*"
 faiss-cpu = "*"
 boto3 = "*"
+chromadb = "*"
 
 [dev-packages]
 

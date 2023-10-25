@@ -30,12 +30,14 @@ def upload_to_s3(file, unique_id=None, file_name="", summary=""):
         'summary': summary
     }
 
+    content_type = 'application/pdf' if file_name.lower().endswith('.pdf') else 'application/octet-stream'
+
     # Upload to S3 using the UUID as the key
     s3.upload_fileobj(
         Fileobj=file,
         Bucket=bucket_name,
         Key=unique_id,
-        ExtraArgs={'Metadata': metadata}
+        ExtraArgs={'Metadata': metadata, 'ContentType': content_type}
     )
 
     return unique_id
@@ -57,7 +59,7 @@ def get_url_from_s3(unique_id):
     return url
 
 
-def extract_text_from_s3(unique_id, bucket_name):
+def extract_text_from_s3(unique_id):
     # Step 1 & 2: Fetch the file from S3 into a bytes buffer
     s3_response_object = s3.get_object(Bucket=bucket_name, Key=unique_id)
     pdf_file = BytesIO(s3_response_object['Body'].read())
