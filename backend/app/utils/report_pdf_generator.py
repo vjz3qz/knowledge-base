@@ -1,4 +1,7 @@
 from fpdf import FPDF
+from io import BytesIO
+
+from .document_retriever import upload_to_s3
 
 
 class PDF(FPDF):
@@ -21,4 +24,21 @@ class PDF(FPDF):
 def create_pdf(data):
     pdf = PDF()
     pdf.create_report(data)
-    pdf.output('app/temp/pdfs/report.pdf', 'F')
+    
+    # Use a BytesIO buffer to hold the PDF in-memory
+    pdf_buffer = BytesIO()
+    pdf.output(pdf_buffer, 'F')
+
+    # Reset buffer position to beginning
+    pdf_buffer.seek(0)
+    
+    # Generate a filename (could be based on the content or any other logic you prefer)
+    file_name = str(data['Report Type']) + str(data['Employee ID']) + str(data['Date']) + ".pdf"
+    
+    # TODO GENERATE ID
+
+    # Upload to S3
+    unique_id = upload_to_s3(pdf_buffer, file_name=file_name)
+
+    return unique_id
+

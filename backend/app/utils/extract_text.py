@@ -2,6 +2,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.document_loaders import PyPDFLoader
 
 def extract_text(pdf_path):
+    # TODO add support for other document types
+    # TODO don't chunk mid sentence
     loader = PyPDFLoader(pdf_path)
     pages = loader.load_and_split()
     combined_content = ''.join([p.page_content for p in pages])

@@ -1,10 +1,12 @@
+import hashlib
+from io import BytesIO
+import tempfile
 from . import v1
 
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS, cross_origin
 
 import os
-import tempfile
 import uuid
 import sys
 
@@ -17,6 +19,7 @@ from app.utils.extract_text import extract_text
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
+from app.utils.generate_unique_id import generate_unique_id
 
 
 
@@ -36,8 +39,6 @@ llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
                  openai_api_key=api_key)
 
 
-
-
 @v1.route('/upload', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def upload_file():
@@ -48,10 +49,21 @@ def upload_file():
     if pdf_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(pdf_file.read())
+        tmp_file.flush()
+        # extract text from pdf
+        texts = extract_text(tmp_file.name)
+        # generate unique id with Document Level Hash
+        combined_text = ''.join(texts)
+        file_id = generate_unique_id(combined_text)
+        # generate summary
+        summary = summarize_document(texts, llm)
+        # Reset the file's pointer to the beginning
+        pdf_file.seek(0)
 
-    # TODO Generate a unique identifier for the file
-    file_id = str(uuid.uuid4())
-    summary = process_document(pdf_file, file_id)
+    # add file to chroma
+    add_text_to_chroma(texts)
     # add file to S3 bucket
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
 
@@ -59,17 +71,6 @@ def upload_file():
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
 
-def process_document(pdf_file, file_id):
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(pdf_file.read())
-        pdf_path = tmp_file.name
-        texts = extract_text(pdf_path)
-        # TODO create embedding and store in vector database
-        add_text_to_chroma(texts, file_id)
-        summary = summarize_document(texts, llm)
-        # Reset the file's pointer to the beginning
-        pdf_file.seek(0)
-    return summary
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -130,7 +131,7 @@ def chat_interact():
     return jsonify({"response": response})
 
 
-@v1.route('/operator_reporting', methods=['POST'])
+@v1.route('/report', methods=['POST'])
 @cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
 def operator_reporting():
     type = request.json['reportType']
