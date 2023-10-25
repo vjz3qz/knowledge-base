@@ -17,7 +17,7 @@ from app.utils.extract_text import extract_text
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.document_retriever import upload_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3
-from app.utils.vector_database_retriever import text_to_embedding
+from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma
 
 try:  
   os.environ['OPENAI_API_KEY']
@@ -42,10 +42,10 @@ def upload_file():
     if pdf_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    summary = process_document(pdf_file)
 
     # Generate a unique identifier for the file
     file_id = str(uuid.uuid4())
+    summary = process_document(pdf_file, file_id)
     # add file to S3 bucket
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
 
@@ -53,13 +53,13 @@ def upload_file():
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
 
-def process_document(pdf_file):
+def process_document(pdf_file, file_id):
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
         tmp_file.write(pdf_file.read())
         pdf_path = tmp_file.name
         texts = extract_text(pdf_path)
         # TODO create embedding and store in vector database
-        embedding = text_to_embedding(texts)
+        add_text_to_chroma(texts, file_id)
         summary = summarize_document(texts, llm)
         # Reset the file's pointer to the beginning
         pdf_file.seek(0)
@@ -72,7 +72,18 @@ def download_file(file_id):
     url = get_url_from_s3(file_id)
     return jsonify(url=url)
     
+@v1.route('/metadata/<file_id>', methods=['GET'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def get_metadata(file_id):
+    metadata = get_metadata_from_s3(file_id)
+    return jsonify(metadata)
 
+@v1.route('/search', methods=['POST'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def search():
+    query = request.json['query']
+    results = search_in_chroma(query)
+    return jsonify(results)
 
 @v1.route('/document-chat', methods=['POST'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])

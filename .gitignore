@@ -29,3 +29,4 @@ yarn-error.log*
 
 package-lock.json
 node_modules
+vector_database/*
