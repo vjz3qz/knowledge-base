@@ -31,10 +31,10 @@ except KeyError:
     sys.exit(1)
 
 from app.utils.document_retriever import upload_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3
-from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma
+from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma, search_k_in_chroma
 
 api_key = os.environ.get('OPENAI_API_KEY')
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k",
                  openai_api_key=api_key)
 
 
@@ -55,7 +55,7 @@ def upload_file():
     # generate summary
     summary = summarize_document(chunked_text, llm)
     # add file to chroma
-    add_text_to_chroma(chunked_text)
+    add_text_to_chroma(chunked_text, file_id)
     # add file to S3 bucket
     pdf_file.seek(0)
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
@@ -84,6 +84,18 @@ def search():
     query = request.json['query']
     results = search_in_chroma(query)
     return jsonify(results)
+
+@v1.route('/search-k', methods=['POST'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def search_k():
+    query = request.json['query']
+    if not request.json.get('k', None):
+        k = 1
+    else:
+        k = int(request.json['k'])
+    results = search_k_in_chroma(query, k)
+    return jsonify(results)
+    
 
 
 @v1.route('/document-chat', methods=['POST'])
