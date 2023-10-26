@@ -111,7 +111,7 @@ def search():
 def search_k():
     query = request.json['query']
     if not request.json.get('k', None):
-        k = 1
+        k = 3
     else:
         k = int(request.json['k'])
     results = search_k_in_chroma(query, k)

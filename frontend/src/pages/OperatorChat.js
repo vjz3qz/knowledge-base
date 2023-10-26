@@ -14,7 +14,7 @@ function OperatorChat() {
     { type: "model", content: "Where did the incident occur?" },
     { type: "model", content: "What happen in the incident?" },
     { type: "model", content: "Can you elaborate on that?" },
-    { type: "model", content: "Approximatley when did this incident occur?" },
+    { type: "model", content: "Approximately when did this incident occur?" },
     { type: "model", content: "Was this incident resolved?" },
     { type: "model", content: "How was it resolved?" },
     { type: "model", content: "Anything else I should know?" },
