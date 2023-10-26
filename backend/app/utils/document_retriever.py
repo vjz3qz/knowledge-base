@@ -1,11 +1,9 @@
 # Utility functions for uploading and retrieving files from S3.
 import sys
 import os
+from .document_processor import extract_text_from_stream
 import boto3
-import uuid
 from io import BytesIO
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.document_loaders import PyPDFLoader
 
 try:  
   os.environ['S3_BUCKET_NAME']
@@ -17,10 +15,7 @@ bucket_name = os.environ.get('S3_BUCKET_NAME')
 s3 = boto3.client('s3')
 
 
-def upload_to_s3(file, unique_id=None, file_name="", summary=""):
-    if not unique_id:
-        # Generate UUID
-        unique_id = str(uuid.uuid4())
+def upload_to_s3(file, unique_id, file_name="", summary=""):
     if not file_name:
         file_name = unique_id
     
@@ -63,10 +58,4 @@ def extract_text_from_s3(unique_id):
     # Step 1 & 2: Fetch the file from S3 into a bytes buffer
     s3_response_object = s3.get_object(Bucket=bucket_name, Key=unique_id)
     pdf_file = BytesIO(s3_response_object['Body'].read())
-
-    # Step 3: Use the bytes buffer with PyPDFLoader
-    loader = PyPDFLoader(pdf_file)
-    pages = loader.load_and_split()
-    combined_content = ''.join([p.page_content for p in pages])
-    text_splitter = CharacterTextSplitter(separator="\n", chunk_size=800, chunk_overlap=200, length_function=len)
-    return text_splitter.split_text(combined_content)
+    return extract_text_from_stream(pdf_file)
