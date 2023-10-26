@@ -58,8 +58,9 @@ def upload_file():
     # add file to chroma
     add_text_to_chroma(chunked_text)
     # add file to S3 bucket
+    pdf_file.seek(0)
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
-
+    
 
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
