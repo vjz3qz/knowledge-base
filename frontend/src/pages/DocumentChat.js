@@ -75,18 +75,22 @@ function DocumentChat() {
               </div>
             )}
             {pdfId && (
-              <>
-                <input
+              <div className="row">
+                <div className="col-md-8">
+                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Type a message..."
-                  className="chat-input-field"
+                  className="chat-input-field form-control"
                 />
-                <button onClick={sendMessage} className="chat-send-button">
+                </div>
+                <div className="col-md-4">
+                  <button onClick={sendMessage} className="chat-send-button btn btn-primary">
                   Send
                 </button>
-              </>
+                </div>
+              </div>
             )}
           </div>
         </div>

@@ -20,6 +20,7 @@ from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
 from app.utils.generate_unique_id import generate_unique_id
+from app.utils.vector_database_retriever import top_k_in_chroma
 
 
 # Ensure all required environment variables are set
@@ -98,7 +99,7 @@ def search_k():
 
 
 @v1.route('/document-chat', methods=['POST'])
-@cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def document_chat():
     current_message = request.json['current_message']
     conversation_history = request.json.get('conversation_history', [])
@@ -166,3 +167,9 @@ def report():
 
     create_pdf(data)
     return make_response('', 201)
+
+
+@v1.route('/top_matches', methods=['POST'])
+@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
+def top_k_matches():
+    return top_k_in_chroma()
