@@ -3,7 +3,7 @@
 import os
 import sys
 from .generate_unique_id import generate_unique_id
-from .document_retriever import get_metadata_from_s3
+from .document_retriever import get_metadata_from_s3, get_url_from_s3
 
 import chromadb
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -28,7 +28,7 @@ persistent_client = chromadb.PersistentClient(path=PERSISTENT_DIRECTORY)
 chroma_db = Chroma(client=persistent_client)
 
 
-def add_text_to_chroma(texts):
+def add_text_to_chroma(texts, file_id):
     # Step 1: Generate unique ID
 
     # Chunk/Page Level Hash
@@ -42,7 +42,7 @@ def add_text_to_chroma(texts):
             return
 
     # TODO USE unique identifier for source, that way we can fetch the data and display it to user
-    sources = [{"source": f"{chunk}", "ID": f"{id}"}
+    sources = [{"source": file_id, "text": f"{chunk}", "chunk_id": f"{id}"}
                for chunk, id in zip(texts, chunk_ids)]
 
     # Step 3: Embed and store the document
@@ -60,19 +60,19 @@ def search_in_chroma(query, chroma_db=None):
     return qa({"question": query}, return_only_outputs=True)
 
 
-def top_k_in_chroma(query, chroma_db=None):
+def search_k_in_chroma(query, k=3, chroma_db=None):
     if not chroma_db:
         chroma_db = Chroma(
             persist_directory=PERSISTENT_DIRECTORY, embedding_function=embedding)
-    retriever = chroma_db.as_retriever(search_kwargs={"k": 3})
-    docs = retriever.get_relevant_documents(query)
+    retriever = chroma_db.as_retriever(search_kwargs={"k": k})
+    # docs = retriever.get_relevant_documents(query)
     qa = RetrievalQAWithSourcesChain.from_chain_type(
         llm=OpenAI(), chain_type="stuff", retriever=retriever, return_source_documents=True)
 
-    response = qa(query)
+    qa_response = qa(query)
     sources = [source.metadata['source']
-               for source in response['source_documents']]
-    source_to_summary = {source: get_metadata_from_s3(
-        source) for source in sources}
-
-    return source_to_summary
+               for source in qa_response['source_documents']]
+    source_data = {source: {"url": get_url_from_s3(source), "metadata": get_metadata_from_s3(
+        source)} for source in sources}
+    response = {"answer": qa_response['answer'], "sources": source_data}
+    return response

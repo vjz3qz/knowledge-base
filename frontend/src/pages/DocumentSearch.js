@@ -1,23 +1,43 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Document, Page } from 'react-pdf';
 import '../styles/DocumentSearch.css';
-import DocumentCard from '../components/DocumentCard';  // Make sure to import the DocumentCard component
+import DocumentCard from '../components/DocumentCard';
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
+
+
 
 const DocumentSearch = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
 
-    function handleSearch() {
-        const fakeResults = [
-            { name: 'Document 1', date: '2023-10-25', summary: 'Summary for Document 1.' },
-            { name: 'Document 2', date: '2023-10-24', summary: 'Summary for Document 2. Detailed overview of the topics covered.' },
-            { name: 'Document 3', date: '2023-10-23', summary: 'Summary for Document 3. Insights into the subject matter.' },
-            { name: 'Document 4', date: '2023-10-22', summary: 'Summary for Document 4. Key findings and important notes.' },
-            { name: 'Document 5', date: '2023-10-21', summary: 'Summary for Document 5. Final remarks and conclusions.' }
-        ];
-        setResults(fakeResults);
-    }
+    
+
+
+    
+    const handleSearch = async () => {
+        const payload = {
+          query: searchTerm,
+        };
+        const result = await axios.post("http://localhost:5001/api/v1/search-k", payload);
+
+        // TODO add this to the backend
+        const data = result.data;
+        let results = []
+        for (let id in data.sources) {
+            let source = data.sources[id];
+            results.push({
+                name: source.metadata.name,
+                date: '2023-10-25',
+                summary: source.metadata.summary,
+                url: source.url
+            });
+        }
+        setResults(results);
+      };
 
     return (
         <div className="container">
@@ -55,7 +75,7 @@ const DocumentSearch = () => {
                         <p>{selectedDocument.date}</p>
                         <p>{selectedDocument.summary}</p>                        
                         <Document
-                            file="/Users/rahulkumar/Desktop/trace-ai/knowledge-base/frontend/public/report.pdf"
+                            file={selectedDocument.url}
                             onLoadError={error => console.error(error)}
                                 >
                             <Page pageNumber={1} onRenderError={error => console.error(error)}/>
