@@ -20,6 +20,7 @@ from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
 from app.utils.generate_unique_id import generate_unique_id
+from app.operator_chat import operator_message_generate
 
 
 
@@ -70,7 +71,6 @@ def upload_file():
 
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
-
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -159,3 +159,14 @@ def operator_reporting():
 
     create_pdf(data)
     return make_response('', 201)
+
+@v1.route('/operator_chat', methods=['POST'])
+@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
+def operator_chat():
+    current_message = request.json['current_message']
+    conversation_history = request.json.get('conversation_history', [])
+    response = operator_message_generate(current_message)
+    return jsonify({"response": response})
+
+
+
