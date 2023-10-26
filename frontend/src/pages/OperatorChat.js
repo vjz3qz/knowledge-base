@@ -10,7 +10,7 @@ function OperatorChat() {
   const [inputValue, setInputValue] = useState("");
 
   const modelMessages = [
-    { type: "model", content: "Hello John. Are you filing an incident report or a work report?" },
+    { type: "model", content: "Hello Varun. Are you filing an incident report or a work report?" },
     { type: "model", content: "Where did the incident occur?" },
     { type: "model", content: "What happen in the incident?" },
     { type: "model", content: "Can you elaborate on that?" },
@@ -43,14 +43,13 @@ function OperatorChat() {
   const submit = async () => {
     alert("Your report has been submitted.");
     
-    const combinedMessages = modelMessages.map((modelMessage, index) => {
-      return [
-        modelMessage,
-        messages[index] ? messages[index] : { type: "user", content: "" }
-      ];
-    }).flat();
+    const payload = modelMessages.reduce((acc, modelMessage, index) => {
+      const userMessage = messages[index] ? messages[index].content : "";
+      const combinedContent = `${modelMessage.content} ${userMessage}`;
+      acc[`question${index + 1}`] = combinedContent;
+      return acc;
+    }, {});
 
-    const payload = { 'payload': combinedMessages};
     const result = await axios.post("http://localhost:5001/api/v1/upload-json", payload);
 
     setMessages([modelMessages[0]]);

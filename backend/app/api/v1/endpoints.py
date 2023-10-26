@@ -47,8 +47,9 @@ def upload_file():
     pdf_file = request.files['file']
     if pdf_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-
-    text = extract_text_from_stream(BytesIO(pdf_file.read()))
+    
+    pdf_buffer = BytesIO(pdf_file.read())
+    text = extract_text_from_stream(pdf_buffer)
     chunked_text = chunk_text(text)
     # generate unique id with Document Level Hash
     file_id = generate_unique_id(text)
@@ -64,7 +65,7 @@ def upload_file():
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
 
 
-@v1.route('/upload_json', methods=['POST'])
+@v1.route('/upload-json', methods=['POST'])
 @cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
 def upload_json():
     pdf_buffer, filename = create_pdf(request.json)

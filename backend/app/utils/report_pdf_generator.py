@@ -28,15 +28,18 @@ def create_pdf(data):
     
     # Use a BytesIO buffer to hold the PDF in-memory
     pdf_buffer = BytesIO()
-    pdf.output(pdf_buffer, 'F')
-
+    
+    # Get the content of the PDF as a string
+    pdf_content = pdf.output(dest='S')
+    
+    # Write the content to the buffer
+    pdf_buffer.write(pdf_content.encode('latin-1'))
+    
     # Reset buffer position to beginning
     pdf_buffer.seek(0)
-    
     # Generate a filename (could be based on the content or any other logic you prefer)
     file_name = "Report_" + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') + ".pdf"
     
-    # TODO GENERATE ID
 
     return pdf_buffer, file_name
 
