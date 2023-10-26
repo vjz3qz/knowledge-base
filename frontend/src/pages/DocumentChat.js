@@ -36,7 +36,7 @@ function DocumentChat() {
         conversation_history: messages.map(m => m.content),
         id: pdfId
       };
-      const result = await axios.post("http://localhost:5001/api/v1/chat_interact", payload);
+      const result = await axios.post("http://localhost:5001/api/v1/document-chat", payload);
       const responseMessage = result.data.response;
       setMessages([...messages, { type: 'user', content: inputValue }, { type: 'server', content: responseMessage }]);
       setInputValue("");

@@ -68,7 +68,7 @@ def upload_file():
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
-def download_file(file_id):
+def view_file(file_id):
     url = get_url_from_s3(file_id)
     return jsonify(url=url)
     
@@ -87,7 +87,7 @@ def search():
 
 @v1.route('/document-chat', methods=['POST'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
-def chat_interact():
+def document_chat():
     current_message = request.json['current_message']
     conversation_history = request.json.get('conversation_history', [])
     pdf_id = request.json.get('id', None)
@@ -101,33 +101,34 @@ def chat_interact():
         intent = determine_intent(current_message)
         # TODO add logic for context awareness
         texts = extract_text_from_s3(pdf_id)
+        chunks = chunk_text(texts)
 
         if intent == 'question':
-            response = query_document(current_message, texts, llm)
+            response = query_document(current_message, chunks, llm)
 
         elif intent == 'summarize':
-            response = summarize_document(texts, llm)
+            response = summarize_document(chunks, llm)
 
     # If there's only a PDF
     elif pdf_id and not conversation_history:
         intent = determine_intent(current_message)
         texts = extract_text_from_s3(pdf_id)
+        chunks = chunk_text(texts)
 
         if intent == 'question':
-            response = query_document(current_message, texts, llm)
+            response = query_document(current_message, chunks, llm)
 
         elif intent == 'summarize':
-            response = summarize_document(texts, llm)
+            response = summarize_document(chunks, llm)
 
     else:
         response = {"error": "Unexpected scenario"}
-
     return jsonify({"response": response})
 
 
 @v1.route('/report', methods=['POST'])
 @cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
-def operator_reporting():
+def report():
     type = request.json['reportType']
     name = request.json['name']
     employee_id = request.json['employeeId']
