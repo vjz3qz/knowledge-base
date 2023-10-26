@@ -8,7 +8,7 @@ def create_app():
     CORS(app)  # if you're using Flask-CORS
 
     # Configuration, blueprints registration, etc.
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     # Registering the v1 blueprint
     app.register_blueprint(v1_blueprint, url_prefix='/api/v1')
 
