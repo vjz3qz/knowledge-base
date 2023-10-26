@@ -72,7 +72,7 @@ def top_k_in_chroma(query, chroma_db=None):
     response = qa(query)
     sources = [source.metadata['source']
                for source in response['source_documents']]
-    source_to_summary = {source: get_metadata_from_s3(
-        source) for source in sources}
+    # source_to_summary = {source: get_metadata_from_s3(
+    #     source) for source in sources}
 
-    return source_to_summary
+    return sources
