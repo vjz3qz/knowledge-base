@@ -3,17 +3,19 @@
 import os
 import sys
 from .generate_unique_id import generate_unique_id
+from .document_retriever import get_metadata_from_s3
+
 import chromadb
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.llms import OpenAI
 from langchain.chains import RetrievalQAWithSourcesChain
 
-try:  
-  os.environ['OPENAI_API_KEY']
-except KeyError: 
-  print('[error]: `OPENAI_API_KEY` environment variable required')
-  sys.exit(1)
+try:
+    os.environ['OPENAI_API_KEY']
+except KeyError:
+    print('[error]: `OPENAI_API_KEY` environment variable required')
+    sys.exit(1)
 
 api_key = os.environ.get('OPENAI_API_KEY')
 embedding = OpenAIEmbeddings(openai_api_key=api_key)
@@ -38,20 +40,39 @@ def add_text_to_chroma(texts):
         if existing_doc.get('documents'):
             print(f"Document with ID {id} already exists.")
             return
-    
+
     # TODO USE unique identifier for source, that way we can fetch the data and display it to user
-    sources = [{"source": f"{chunk}", "ID": f"{id}"} for chunk, id in zip(texts, chunk_ids)]
+    sources = [{"source": f"{chunk}", "ID": f"{id}"}
+               for chunk, id in zip(texts, chunk_ids)]
 
     # Step 3: Embed and store the document
-    chroma_db.from_texts(texts, embedding, metadatas=sources, ids=chunk_ids, persist_directory=PERSISTENT_DIRECTORY)
+    chroma_db.from_texts(texts, embedding, metadatas=sources,
+                         ids=chunk_ids, persist_directory=PERSISTENT_DIRECTORY)
     print(f"Document added successfully.")
 
 
 def search_in_chroma(query, chroma_db=None):
     if not chroma_db:
-        chroma_db = Chroma(persist_directory=PERSISTENT_DIRECTORY, embedding_function=embedding)
-    qa = RetrievalQAWithSourcesChain.from_chain_type(llm=OpenAI(), chain_type="stuff", retriever=chroma_db.as_retriever())
+        chroma_db = Chroma(
+            persist_directory=PERSISTENT_DIRECTORY, embedding_function=embedding)
+    qa = RetrievalQAWithSourcesChain.from_chain_type(
+        llm=OpenAI(), chain_type="stuff", retriever=chroma_db.as_retriever())
     return qa({"question": query}, return_only_outputs=True)
 
 
+def top_k_in_chroma(query, chroma_db=None):
+    if not chroma_db:
+        chroma_db = Chroma(
+            persist_directory=PERSISTENT_DIRECTORY, embedding_function=embedding)
+    retriever = chroma_db.as_retriever(search_kwargs={"k": 3})
+    docs = retriever.get_relevant_documents(query)
+    qa = RetrievalQAWithSourcesChain.from_chain_type(
+        llm=OpenAI(), chain_type="stuff", retriever=retriever, return_source_documents=True)
 
+    response = qa(query)
+    sources = [source.metadata['source']
+               for source in response['source_documents']]
+    source_to_summary = {source: get_metadata_from_s3(
+        source) for source in sources}
+
+    return source_to_summary

@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@huggingface/inference": "^2.6.4"
+    "@huggingface/inference": "^2.6.4",
+    "bootstrap": "^5.3.2"
   }
 }

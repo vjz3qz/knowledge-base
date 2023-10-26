@@ -43,9 +43,8 @@ function DocumentChat() {
     };
   
     return (
-      <div className="app">
+      <div className="container">
         <div className="chat-panel">
-          <div className="chat-header">Trace AI</div>
           <div className="chat-content">
             {messages.map((message, index) => (
               <div
@@ -58,11 +57,21 @@ function DocumentChat() {
               </div>
             ))}
           </div>
+          <hr className='section-divider'></hr>
           <div className="chat-input">
             {!pdfId && (
-              <div>
-                <input type="file" onChange={onFileChange} accept=".pdf" />
-                <button onClick={onUpload}>Upload PDF</button>
+              <div className="row">
+                <div className="col-md-8">
+                  <input
+                    type="file"
+                    onChange={onFileChange}
+                    accept=".pdf"
+                    className="form-control choose-file"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <button onClick={onUpload} className="btn btn-primary">Upload PDF</button>
+                </div>
               </div>
             )}
             {pdfId && (

@@ -22,8 +22,6 @@ from app.utils.report_pdf_generator import create_pdf
 from app.utils.generate_unique_id import generate_unique_id
 
 
-
-
 # Ensure all required environment variables are set
 try:
     os.environ['OPENAI_API_KEY']
@@ -42,7 +40,7 @@ llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
 @v1.route('/upload', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def upload_file():
-  
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     pdf_file = request.files['file']
@@ -60,7 +58,6 @@ def upload_file():
     # add file to S3 bucket
     pdf_file.seek(0)
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
-    
 
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
@@ -71,12 +68,14 @@ def upload_file():
 def view_file(file_id):
     url = get_url_from_s3(file_id)
     return jsonify(url=url)
-    
+
+
 @v1.route('/metadata/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def get_metadata(file_id):
     metadata = get_metadata_from_s3(file_id)
     return jsonify(metadata)
+
 
 @v1.route('/search', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -84,6 +83,7 @@ def search():
     query = request.json['query']
     results = search_in_chroma(query)
     return jsonify(results)
+
 
 @v1.route('/document-chat', methods=['POST'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
