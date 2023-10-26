@@ -20,7 +20,7 @@ from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
 from app.utils.generate_unique_id import generate_unique_id
-from app.utils.vector_database_retriever import top_k_in_chroma
+from app.utils.report_pdf_generator import create_pdf
 
 
 # Ensure all required environment variables are set
@@ -63,6 +63,26 @@ def upload_file():
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
 
+
+@v1.route('/upload_json', methods=['POST'])
+@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
+def upload_json():
+    pdf_buffer, filename = create_pdf(request.json)
+
+    text = extract_text_from_stream(pdf_buffer)
+    chunked_text = chunk_text(text)
+    # generate unique id with Document Level Hash
+    file_id = generate_unique_id(text)
+    # generate summary
+    summary = summarize_document(chunked_text, llm)
+    # add file to chroma
+    add_text_to_chroma(chunked_text, file_id)
+    # add file to S3 bucket
+    pdf_buffer.seek(0)
+    upload_to_s3(pdf_buffer, file_id, filename, summary)
+
+    # Return the unique identifier to the frontend
+    return jsonify({"id": file_id, "summary": summary, "filename": filename})
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -173,3 +193,4 @@ def report():
 @cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
 def top_k_matches():
     return top_k_in_chroma()
+

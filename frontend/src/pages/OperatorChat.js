@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import "../styles/DocumentChat.css";
-import { Document, Page } from 'react-pdf';
 import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
 
 
 function OperatorChat() {
@@ -42,8 +40,19 @@ function OperatorChat() {
     }
   }
 
-  const resetChat = () => {
+  const submit = async () => {
     alert("Your report has been submitted.");
+    
+    const combinedMessages = modelMessages.map((modelMessage, index) => {
+      return [
+        modelMessage,
+        messages[index] ? messages[index] : { type: "user", content: "" }
+      ];
+    }).flat();
+
+    payload = { 'payload': combinedMessages};
+    const result = await axios.post("http://localhost:5001/api/v1/upload-json", payload);
+
     setMessages([modelMessages[0]]);
     setInputValue("");
     setModelMessageIndex(1);
@@ -88,7 +97,7 @@ function OperatorChat() {
               >Send</button>
               <button class="btn btn-primary btn-sm ml-1"
                 style={{ marginLeft: '5px', fontSize: '18px' }}
-                onClick={resetChat}>Submit</button>
+                onClick={submit}>Submit</button>
             </div>
           </div>
         </div>

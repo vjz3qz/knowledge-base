@@ -1,5 +1,6 @@
 from fpdf import FPDF
 from io import BytesIO
+from datetime import datetime
 
 from .document_retriever import upload_to_s3
 
@@ -33,12 +34,9 @@ def create_pdf(data):
     pdf_buffer.seek(0)
     
     # Generate a filename (could be based on the content or any other logic you prefer)
-    file_name = str(data['Report Type']) + str(data['Employee ID']) + str(data['Date']) + ".pdf"
+    file_name = "Report_" + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') + ".pdf"
     
     # TODO GENERATE ID
 
-    # Upload to S3
-    unique_id = upload_to_s3(pdf_buffer, file_name=file_name)
-
-    return unique_id
+    return pdf_buffer, file_name
 
