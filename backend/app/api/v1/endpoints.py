@@ -15,7 +15,7 @@ from langchain.embeddings import OpenAIEmbeddings
 
 
 from app.utils.determine_intent import determine_intent
-from app.utils.extract_text import extract_text
+from app.utils.document_processor import chunk_text, extract_text_from_stream
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
@@ -50,21 +50,14 @@ def upload_file():
     if pdf_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(pdf_file.read())
-        tmp_file.flush()
-        # extract text from pdf
-        texts = extract_text(tmp_file.name)
-        # generate unique id with Document Level Hash
-        combined_text = ''.join(texts)
-        file_id = generate_unique_id(combined_text)
-        # generate summary
-        summary = summarize_document(texts, llm)
-        # Reset the file's pointer to the beginning
-        pdf_file.seek(0)
-
+    text = extract_text_from_stream(BytesIO(pdf_file.read()))
+    chunked_text = chunk_text(text)
+    # generate unique id with Document Level Hash
+    file_id = generate_unique_id(text)
+    # generate summary
+    summary = summarize_document(chunked_text, llm)
     # add file to chroma
-    add_text_to_chroma(texts)
+    add_text_to_chroma(chunked_text)
     # add file to S3 bucket
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
 
