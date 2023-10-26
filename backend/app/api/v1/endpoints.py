@@ -20,9 +20,6 @@ from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
 from app.utils.generate_unique_id import generate_unique_id
-from app.operator_chat import operator_message_generate
-
-
 
 
 # Ensure all required environment variables are set
@@ -43,7 +40,7 @@ llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo",
 @v1.route('/upload', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def upload_file():
-  
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     pdf_file = request.files['file']
@@ -61,21 +58,23 @@ def upload_file():
     # add file to S3 bucket
     upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
 
-
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
+
 
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def download_file(file_id):
     url = get_url_from_s3(file_id)
     return jsonify(url=url)
-    
+
+
 @v1.route('/metadata/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def get_metadata(file_id):
     metadata = get_metadata_from_s3(file_id)
     return jsonify(metadata)
+
 
 @v1.route('/search', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -84,8 +83,9 @@ def search():
     results = search_in_chroma(query)
     return jsonify(results)
 
+
 @v1.route('/document-chat', methods=['POST'])
-@cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def chat_interact():
     current_message = request.json['current_message']
     conversation_history = request.json.get('conversation_history', [])
@@ -152,14 +152,3 @@ def operator_reporting():
 
     create_pdf(data)
     return make_response('', 201)
-
-@v1.route('/operator_chat', methods=['POST'])
-@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
-def operator_chat():
-    current_message = request.json['current_message']
-    conversation_history = request.json.get('conversation_history', [])
-    response = operator_message_generate(current_message)
-    return jsonify({"response": response})
-
-
-
