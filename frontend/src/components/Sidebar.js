@@ -10,7 +10,7 @@ const Sidebar = () => {
                 <h2>Trace AI</h2>
             </div>
             <div className="menu-items">
-                <Link to="/dashboard"><FiBarChart className="menu-icon" />Dashboard</Link>
+                {/* <Link to="/dashboard"><FiBarChart className="menu-icon" />Dashboard</Link> */}
                 <Link to="/document-search"><FiSearch className="menu-icon" />Document Search</Link>
                 <Link to="/document-chat"><FiFileText className="menu-icon" />Document Chat</Link>
                 <Link to="/incident-reports"><FiInbox className="menu-icon" />Operator Reporting</Link>

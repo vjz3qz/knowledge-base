@@ -50,7 +50,7 @@ function OperatorChat() {
       ];
     }).flat();
 
-    payload = { 'payload': combinedMessages};
+    const payload = { 'payload': combinedMessages};
     const result = await axios.post("http://localhost:5001/api/v1/upload-json", payload);
 
     setMessages([modelMessages[0]]);
