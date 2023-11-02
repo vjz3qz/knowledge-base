@@ -7,7 +7,6 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS, cross_origin
 
 import os
-import uuid
 import sys
 
 from langchain.chat_models import ChatOpenAI
@@ -19,7 +18,7 @@ from app.utils.document_processor import chunk_text, extract_text_from_stream
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
-from app.utils.generate_unique_id import generate_unique_id
+from app.utils.generate_unique_id import generate_unique_id, generate_image_hash
 from app.utils.report_pdf_generator import create_pdf
 
 
@@ -30,7 +29,7 @@ except KeyError:
     print('[error]: `API_KEY` environment variable required')
     sys.exit(1)
 
-from app.utils.document_retriever import upload_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3
+from app.utils.document_retriever import upload_document_to_s3, upload_image_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
 from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma, search_k_in_chroma
 
 api_key = os.environ.get('OPENAI_API_KEY')
@@ -59,10 +58,35 @@ def upload_file():
     add_text_to_chroma(chunked_text, file_id)
     # add file to S3 bucket
     pdf_file.seek(0)
-    upload_to_s3(pdf_file, file_id, pdf_file.filename, summary)
+    upload_document_to_s3(pdf_file, file_id, pdf_file.filename, summary)
 
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
+
+@v1.route('/upload-image', methods=['POST'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def upload_image():
+
+    if 'image' not in request.files:
+        return jsonify({"error": "No image part in the request"}), 400
+    image_file = request.files['image']
+    if image_file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+
+    image_content = image_file.read()
+    image_hash = generate_image_hash(image_content)
+    # upload to s3
+    upload_image_to_s3(image_file, image_hash, image_file.filename)
+    # get s3 url
+    url = get_url_from_s3(image_hash, "trace-ai-images", "input-images")
+    # call lambda function
+    lambda_response = call_lambda_function(url)
+    # get class counts for lambda function response
+    class_counts = lambda_response['class_counts']
+
+    # Return the unique identifier to the frontend
+    return jsonify({"id": image_hash, "summary": class_counts, "filename": image_file.filename})
 
 
 @v1.route('/upload-json', methods=['POST'])
@@ -80,7 +104,7 @@ def upload_json():
     add_text_to_chroma(chunked_text, file_id)
     # add file to S3 bucket
     pdf_buffer.seek(0)
-    upload_to_s3(pdf_buffer, file_id, filename, summary)
+    upload_document_to_s3(pdf_buffer, file_id, filename, summary)
 
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": filename})
@@ -188,10 +212,4 @@ def report():
 
     create_pdf(data)
     return make_response('', 201)
-
-
-@v1.route('/top_matches', methods=['POST'])
-@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
-def top_k_matches():
-    return top_k_in_chroma()
 
