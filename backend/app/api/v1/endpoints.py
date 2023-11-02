@@ -67,9 +67,9 @@ def upload_file():
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def upload_image():
 
-    if 'image' not in request.files:
+    if 'file' not in request.files:
         return jsonify({"error": "No image part in the request"}), 400
-    image_file = request.files['image']
+    image_file = request.files['file']
     if image_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     
@@ -91,10 +91,11 @@ def upload_image():
     body_content = json.loads(lambda_response['body'])
     class_counts = body_content['class_counts']
     # print(lambda_response)
-    print(class_counts)
+    # print(class_counts)
 
     # Return the unique identifier to the frontend
-    return jsonify({"id": image_hash, "summary": class_counts, "filename": image_file.filename})
+
+    return jsonify({"id": image_hash, "summary": json.dumps(class_counts), "filename": image_file.filename})
     # return jsonify({"id": image_hash,  "filename": image_file.filename})
 
 
