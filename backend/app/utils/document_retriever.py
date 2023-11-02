@@ -5,6 +5,7 @@ from .document_processor import extract_text_from_stream
 import boto3
 from io import BytesIO
 import json
+from .document_processor import get_file_extension
 
 try:  
   os.environ['S3_BUCKET_NAME']
@@ -26,8 +27,8 @@ def upload_document_to_s3(file, unique_id, file_name="", summary=""):
         'name': file_name,
         'summary': summary
     }
-
-    content_type = 'application/pdf' if file_name.lower().endswith('.pdf') else 'application/octet-stream'
+    res = get_file_extension(file_name)[0]
+    content_type = res if res else 'application/octet-stream'
 
     # Upload to S3 using the hash as the key
     s3.upload_fileobj(
@@ -40,30 +41,29 @@ def upload_document_to_s3(file, unique_id, file_name="", summary=""):
     return unique_id
 
 
-def upload_image_to_s3(image, unique_id, image_name=""):
+
+def upload_image_to_s3(image, unique_id, image_name="", bucket=bucket_name, prefix = ""):
     if not image_name:
         image_name = unique_id
     
+    if prefix:
+        key = prefix + "/" + unique_id
+    else:
+        key = unique_id
     # Metadata
     metadata = {
         'name': image_name,
     }
 
-    content_type_map = {
-        "jpg": "image/jpeg",
-        "jpeg": "image/jpeg",
-        "png": "image/png",
-        # add other image types if needed
-    }
-    file_extension = os.path.splitext(image_name)[1][1:]  # Get extension without the dot
-    content_type = content_type_map.get(file_extension, "binary/octet-stream")
+    type, extension = get_file_extension(image_name)
+    content_type = type if type else "binary/octet-stream"
 
 
     # Upload to S3 using the hash as the key
     s3.upload_fileobj(
         Fileobj=image,
-        Bucket=bucket_name,
-        Key=unique_id,
+        Bucket=bucket,
+        Key=key,
         ExtraArgs={'Metadata': metadata, 'ContentType': content_type}
     )
 
@@ -99,16 +99,18 @@ def extract_text_from_s3(unique_id):
 
 client = boto3.client('lambda')
 
-def call_lambda_function(s3_url):
+def call_lambda_function(image_id, content_type, file_extension):
     response = lambda_client.invoke(
         FunctionName='yolov5-lambda',
         InvocationType='RequestResponse',  # Synchronous invocation
         Payload=json.dumps({
-            's3_url': s3_url
+            'image_id': image_id,
+            'content_type': content_type,
+            'file_extension': file_extension
             # 's3_url': 'https://s3-your-region.amazonaws.com/your-bucket-name/your-image-path.jpg'
         })
     )
 
     lambda_response = json.loads(response['Payload'].read())
-    body_content = json.loads(lambda_response.get('body', '{}'))
-    return body_content
+    # body_content = json.loads(lambda_response.get('body', '{}'))
+    return lambda_response

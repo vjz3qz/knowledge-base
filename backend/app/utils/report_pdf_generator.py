@@ -2,7 +2,7 @@ from fpdf import FPDF
 from io import BytesIO
 from datetime import datetime
 
-from .document_retriever import upload_to_s3
+# from .document_retriever import upload_document_to_s3
 
 
 class PDF(FPDF):

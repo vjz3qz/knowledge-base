@@ -1,5 +1,6 @@
 import hashlib
 from io import BytesIO
+import json
 import tempfile
 from . import v1
 
@@ -12,9 +13,8 @@ import sys
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 
-
 from app.utils.determine_intent import determine_intent
-from app.utils.document_processor import chunk_text, extract_text_from_stream
+from app.utils.document_processor import chunk_text, extract_text_from_stream, get_file_extension
 from app.utils.query_document import query_document
 from app.utils.summarize_document import summarize_document
 from app.utils.report_pdf_generator import create_pdf
@@ -76,17 +76,26 @@ def upload_image():
 
     image_content = image_file.read()
     image_hash = generate_image_hash(image_content)
+    image_file.seek(0)
     # upload to s3
-    upload_image_to_s3(image_file, image_hash, image_file.filename)
-    # get s3 url
-    url = get_url_from_s3(image_hash, "trace-ai-images", "input-images")
+    upload_image_to_s3(image_file, image_hash, image_file.filename, "trace-ai-images", "input-images")
+    # # get s3 url
+    # url = get_url_from_s3(image_hash, "trace-ai-images", "input-images")
+    # get content type
+    content_type, file_extension = get_file_extension(image_file.filename)
+    # print(content_type)
     # call lambda function
-    lambda_response = call_lambda_function(url)
+    lambda_response = call_lambda_function(image_hash, content_type, file_extension)
     # get class counts for lambda function response
-    class_counts = lambda_response['class_counts']
+    # class_counts = lambda_response['class_counts']
+    body_content = json.loads(lambda_response['body'])
+    class_counts = body_content['class_counts']
+    # print(lambda_response)
+    print(class_counts)
 
     # Return the unique identifier to the frontend
     return jsonify({"id": image_hash, "summary": class_counts, "filename": image_file.filename})
+    # return jsonify({"id": image_hash,  "filename": image_file.filename})
 
 
 @v1.route('/upload-json', methods=['POST'])
