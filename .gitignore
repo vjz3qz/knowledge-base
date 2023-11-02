@@ -31,3 +31,5 @@ yarn-error.log*
 package-lock.json
 node_modules
 vector_database/*
+
+backend/app/__pycache__/
