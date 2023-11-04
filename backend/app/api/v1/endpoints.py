@@ -99,46 +99,12 @@ def upload_image():
     # return jsonify({"id": image_hash,  "filename": image_file.filename})
 
 
-@v1.route('/upload-json', methods=['POST'])
-@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
-def upload_json():
-    pdf_buffer, filename = create_pdf(request.json)
-
-    text = extract_text_from_stream(pdf_buffer)
-    chunked_text = chunk_text(text)
-    # generate unique id with Document Level Hash
-    file_id = generate_unique_id(text)
-    # generate summary
-    summary = summarize_document(chunked_text, llm)
-    # add file to chroma
-    add_text_to_chroma(chunked_text, file_id)
-    # add file to S3 bucket
-    pdf_buffer.seek(0)
-    upload_document_to_s3(pdf_buffer, file_id, filename, summary)
-
-    # Return the unique identifier to the frontend
-    return jsonify({"id": file_id, "summary": summary, "filename": filename})
-
 @v1.route('/view/<file_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
 def view_file(file_id):
     url = get_url_from_s3(file_id)
     return jsonify(url=url)
 
-
-@v1.route('/metadata/<file_id>', methods=['GET'])
-@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
-def get_metadata(file_id):
-    metadata = get_metadata_from_s3(file_id)
-    return jsonify(metadata)
-
-
-@v1.route('/search', methods=['POST'])
-@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
-def search():
-    query = request.json['query']
-    results = search_in_chroma(query)
-    return jsonify(results)
 
 @v1.route('/search-k', methods=['POST'])
 @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
@@ -150,7 +116,6 @@ def search_k():
         k = int(request.json['k'])
     results = search_k_in_chroma(query, k)
     return jsonify(results)
-    
 
 
 @v1.route('/document-chat', methods=['POST'])
@@ -194,6 +159,40 @@ def document_chat():
     return jsonify({"response": response})
 
 
+
+
+
+
+
+
+
+# ------------------ FUTURE ENDPOINTS ------------------
+
+
+
+
+
+
+
+
+
+
+
+@v1.route('/metadata/<file_id>', methods=['GET'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def get_metadata(file_id):
+    metadata = get_metadata_from_s3(file_id)
+    return jsonify(metadata)
+
+
+@v1.route('/search', methods=['POST'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def search():
+    query = request.json['query']
+    results = search_in_chroma(query)
+    return jsonify(results)
+
+
 @v1.route('/report', methods=['POST'])
 @cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
 def report():
@@ -223,3 +222,23 @@ def report():
     create_pdf(data)
     return make_response('', 201)
 
+
+@v1.route('/upload-json', methods=['POST'])
+@cross_origin(origins='*', allow_headers=['access-control-allow-origin', 'Content-Type'])
+def upload_json():
+    pdf_buffer, filename = create_pdf(request.json)
+
+    text = extract_text_from_stream(pdf_buffer)
+    chunked_text = chunk_text(text)
+    # generate unique id with Document Level Hash
+    file_id = generate_unique_id(text)
+    # generate summary
+    summary = summarize_document(chunked_text, llm)
+    # add file to chroma
+    add_text_to_chroma(chunked_text, file_id)
+    # add file to S3 bucket
+    pdf_buffer.seek(0)
+    upload_document_to_s3(pdf_buffer, file_id, filename, summary)
+
+    # Return the unique identifier to the frontend
+    return jsonify({"id": file_id, "summary": summary, "filename": filename})
