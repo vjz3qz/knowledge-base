@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Document, Page } from 'react-pdf';
 import '../styles/DocumentSearch.css';
@@ -10,6 +11,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 
 const DocumentSearch = () => {
+
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
@@ -30,6 +33,7 @@ const DocumentSearch = () => {
         for (let id in data.sources) {
             let source = data.sources[id];
             results.push({
+                id: id,
                 name: source.metadata.name,
                 date: '2023-10-25',
                 summary: source.metadata.summary,
@@ -40,11 +44,8 @@ const DocumentSearch = () => {
       };
 
     // This function will navigate to the DocumentChat component with the document's details
-    const goToChat = (document) => {
-        // Assuming you're using React Router, you would navigate like this:
-        // props.history.push(`/document-chat/${document.id}`);
-        // For now, we're just logging it to the console:
-        console.log(`Go to chat for document: ${document.id}`);
+    const goToChat = (id) => {
+        navigate(`/document-chat/${id}`); // Use navigate function with the path
     };
 
     return (
@@ -83,7 +84,7 @@ const DocumentSearch = () => {
                         <p>{selectedDocument.date}</p>
                         <p>{selectedDocument.summary}</p>   
                         {/* Add a chat button in the summary section */}
-                        <button onClick={() => goToChat(selectedDocument)} className="btn btn-secondary">
+                        <button onClick={() => goToChat(selectedDocument.id)} className="btn btn-secondary">
                             Go to Chat
                         </button>                     
                         <Document

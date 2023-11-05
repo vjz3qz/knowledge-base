@@ -23,7 +23,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />}/>
             <Route path="/upload" element={<Upload />}/>
             <Route path="/document-search" element={<DocumentSearch />}/>
-            <Route path="/document-chat" element={<DocumentChat />} />
+            <Route path="/document-chat/:id" element={<DocumentChat />} />
             <Route path="/incident-reports" element={<OperatorChat/>} />
           </Routes>
         </div>
