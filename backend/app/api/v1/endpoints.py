@@ -160,29 +160,17 @@ def document_chat():
 
 
 
-
+@v1.route('/metadata/<file_id>', methods=['GET'])
+@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+def get_metadata(file_id):
+    metadata = get_metadata_from_s3(file_id)
+    return jsonify(metadata)
 
 
 
 
 
 # ------------------ FUTURE ENDPOINTS ------------------
-
-
-
-
-
-
-
-
-
-
-
-@v1.route('/metadata/<file_id>', methods=['GET'])
-@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
-def get_metadata(file_id):
-    metadata = get_metadata_from_s3(file_id)
-    return jsonify(metadata)
 
 
 @v1.route('/search', methods=['POST'])

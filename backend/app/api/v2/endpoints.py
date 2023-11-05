@@ -9,7 +9,7 @@ import sys
 from langchain.chat_models import ChatOpenAI
 
 from app.utils.determine_intent import determine_intent
-from app.utils.document_retriever import get_url_from_s3
+from app.utils.document_retriever import get_url_from_s3, get_metadata_from_s3
 from app.controllers.upload_controller import upload_file_handler
 
 from app.utils.vector_database_retriever import search_k_in_chroma
@@ -162,3 +162,10 @@ def document_chat():
     # if diagram, pass image summary and table text representation to llm
 
     return jsonify({"response": response})
+
+
+@v2.route('/view-metadata/<file_id>', methods=['GET'])
+@cross_origin()
+def get_metadata(file_id):
+    metadata = get_metadata_from_s3(file_id)
+    return jsonify(metadata)
