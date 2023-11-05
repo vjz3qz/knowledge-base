@@ -28,8 +28,8 @@ try:
 except KeyError:
     print('[error]: `API_KEY` environment variable required')
     sys.exit(1)
-
-from app.utils.document_retriever import upload_document_to_s3, upload_image_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
+# from app.utils.document_retriever import upload_image_to_s3
+from app.utils.document_retriever import upload_document_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
 from app.utils.vector_database_retriever import add_text_to_chroma, search_in_chroma, search_k_in_chroma
 
 api_key = os.environ.get('OPENAI_API_KEY')
@@ -63,40 +63,40 @@ def upload_file():
     # Return the unique identifier to the frontend
     return jsonify({"id": file_id, "summary": summary, "filename": pdf_file.filename})
 
-@v1.route('/upload-image', methods=['POST'])
-@cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
-def upload_image():
+# @v1.route('/upload-image', methods=['POST'])
+# @cross_origin(origin='*', headers=['access-control-allow-origin', 'Content-Type'])
+# def upload_image():
 
-    if 'file' not in request.files:
-        return jsonify({"error": "No image part in the request"}), 400
-    image_file = request.files['file']
-    if image_file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No image part in the request"}), 400
+#     image_file = request.files['file']
+#     if image_file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
     
 
-    image_content = image_file.read()
-    image_hash = generate_image_hash(image_content)
-    image_file.seek(0)
-    # upload to s3
-    upload_image_to_s3(image_file, image_hash, image_file.filename, "trace-ai-images", "input-images")
-    # # get s3 url
-    # url = get_url_from_s3(image_hash, "trace-ai-images", "input-images")
-    # get content type
-    content_type, file_extension = get_file_extension(image_file.filename)
-    # print(content_type)
-    # call lambda function
-    lambda_response = call_lambda_function(image_hash, content_type, file_extension)
-    # get class counts for lambda function response
-    # class_counts = lambda_response['class_counts']
-    body_content = json.loads(lambda_response['body'])
-    class_counts = body_content['class_counts']
-    # print(lambda_response)
-    # print(class_counts)
+#     image_content = image_file.read()
+#     image_hash = generate_image_hash(image_content)
+#     image_file.seek(0)
+#     # upload to s3
+#     upload_image_to_s3(image_file, image_hash, image_file.filename, "trace-ai-images", "input-images")
+#     # # get s3 url
+#     # url = get_url_from_s3(image_hash, "trace-ai-images", "input-images")
+#     # get content type
+#     content_type, file_extension = get_file_extension(image_file.filename)
+#     # print(content_type)
+#     # call lambda function
+#     lambda_response = call_lambda_function(image_hash, content_type, file_extension)
+#     # get class counts for lambda function response
+#     # class_counts = lambda_response['class_counts']
+#     body_content = json.loads(lambda_response['body'])
+#     class_counts = body_content['class_counts']
+#     # print(lambda_response)
+#     # print(class_counts)
 
-    # Return the unique identifier to the frontend
+#     # Return the unique identifier to the frontend
 
-    return jsonify({"id": image_hash, "summary": json.dumps(class_counts), "filename": image_file.filename})
-    # return jsonify({"id": image_hash,  "filename": image_file.filename})
+#     return jsonify({"id": image_hash, "summary": json.dumps(class_counts), "filename": image_file.filename})
+#     # return jsonify({"id": image_hash,  "filename": image_file.filename})
 
 
 @v1.route('/view/<file_id>', methods=['GET'])
