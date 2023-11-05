@@ -35,15 +35,17 @@ def upload_document_to_s3(file, file_id, metadata = {}, content_type = "", bucke
         final_metadata['name'] = metadata['name']
     if 'summary' in metadata:
         final_metadata['summary'] = metadata['summary']
-    if 'classification_data' in metadata:
-        final_metadata['classification_data'] = metadata['classification_data']
+    if 'file_type' in metadata:
+        final_metadata['file_type'] = metadata['file_type']
+    if 'content_type' in metadata:
+        final_metadata['content_type'] = metadata['content_type']
 
     # Upload to S3 using the hash as the key
     s3.upload_fileobj(
         Fileobj=file,
-        Bucket=bucket_name,
-        Key=file_id,
-        ExtraArgs={'Metadata': metadata, 'ContentType': content_type}
+        Bucket=bucket,
+        Key=key,
+        ExtraArgs={'Metadata': final_metadata, 'ContentType': content_type}
     )
 
     return file_id
@@ -58,6 +60,8 @@ def get_metadata_from_s3(unique_id):
 
 
 def get_url_from_s3(unique_id, bucket=bucket_name, prefix = ""):
+    if not bucket:
+        bucket = bucket_name
     if prefix:
         key = prefix + "/" + unique_id
     else:
