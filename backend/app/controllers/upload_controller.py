@@ -26,7 +26,7 @@ def upload_file_handler(uploaded_file, llm, content_type, file_type):
 
 def text_file_handler(text_file, llm, content_type):
     if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
-        return
+        return 400
     elif content_type == 'text/plain':
         text, chunked_text = extract_txt_text(text_file)
     elif content_type == 'application/pdf':
@@ -45,10 +45,11 @@ def text_file_handler(text_file, llm, content_type):
     metadata = {
         "name": text_file.filename,
         "summary": summary,
-        "content_type": content_type
+        "content_type": content_type,
+        "file_type": "text"
     }
     upload_document_to_s3(text_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
-
+    return 200
 
 def extract_txt_text(txt_file):
     # Read the text directly from the text file
@@ -82,10 +83,15 @@ def extract_docx_text(docx_file):
 
 def diagram_file_handler(diagram_file, llm, content_type):
     if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
-        return
+        return 400
     # Read the binary content of the file
     diagram_content = diagram_file.read()
-    diagram_file.seek(0)
+
+    # Create an in-memory file-like object from the original content
+    diagram_file_copy1 = BytesIO(diagram_content)
+    diagram_file_copy2 = BytesIO(diagram_content)
+    diagram_file_copy1.seek(0)
+    diagram_file_copy2.seek(0)
     # Generate a unique ID for the PDF file or image
     if content_type == 'application/pdf':
         file_id = generate_unique_id(diagram_content, 'binary')
@@ -93,7 +99,7 @@ def diagram_file_handler(diagram_file, llm, content_type):
         file_id = generate_unique_id(diagram_content, 'image')
 
     # upload temporary file to S3: trace-ai-images/input-images
-    upload_document_to_s3(diagram_file, file_id, bucket='trace-ai-images', prefix='input-images')
+    upload_document_to_s3(diagram_file_copy1, file_id, content_type = content_type, bucket='trace-ai-images', prefix='input-images')
 
     # generate summary: call lambda function to get class counts, bounding boxes, and confidence scores
     lambda_response = call_lambda_function(file_id)
@@ -108,20 +114,32 @@ def diagram_file_handler(diagram_file, llm, content_type):
     text_representation = create_text_representation(diagram_file.filename, class_counts, bounding_boxes, confidence_scores)
 
     # add file to chroma OR summary to chroma
-    add_text_to_chroma(text_representation, file_id)
+    chunked_text = chunk_text(text_representation)
+    add_text_to_chroma(chunked_text, file_id)
 
     classification_data = serialize_to_json(diagram_file.filename, class_counts, bounding_boxes, confidence_scores, results)
 
     metadata = {
         "name": diagram_file.filename,
         "summary": text_representation,
-        "classification_data": classification_data,
-        "content_type": content_type
+        "content_type": content_type,
+        "file_type": "diagram"
     }
-    # add file to S3 bucket: trace-ai-knowledge-base-documents
-    upload_document_to_s3(diagram_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
+
+    # Convert the dictionary to a JSON string
+    classification_data_string = json.dumps(classification_data)
+
+    # Convert the JSON string to bytes
+    classification_data_bytes = classification_data_string.encode('utf-8')
+
+    # Create a file-like object from the JSON bytes
+    classification_dataobj = BytesIO(classification_data_bytes)
+    upload_document_to_s3(classification_dataobj, file_id, content_type='application/json', bucket='trace-ai-classification-data')
+    # # add file to S3 bucket: trace-ai-knowledge-base-documents
+    upload_document_to_s3(diagram_file_copy2, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
 
     # TODO delete temporary file from S3: trace-ai-images/input-images
+    return 200
 
 
 
