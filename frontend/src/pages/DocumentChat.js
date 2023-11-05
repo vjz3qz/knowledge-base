@@ -1,52 +1,43 @@
-import React, { useState } from "react";
+import Summary from "../components/Summary";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../styles/DocumentChat.css";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
+
 function DocumentChat() {
-  const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
-  const [id, setId] = useState("");
+  const { id } = useParams();
+  const [fileUrl, setFileUrl] = useState("");
+  const [metadata, setMetadata] = useState({});
+
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [summary, setSummary] = useState("");
 
-  const onFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+  // Function to initialize chat when component mounts or when document ID changes
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const result = await axios.get(`http://localhost:5001/api/v1/view/${id}`);
+      setFileUrl(result.data.url);
+    };
 
-  const onUpload = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    let result;
+    const fetchMetadata = async () => {
+      const result = await axios.get(
+        `http://localhost:5001/api/v2/view-metadata/${id}`
+      );
+      // Here you would load the document's details, including fetching the summary and setting the file name
+
+      setMetadata(result.data.metadata);
+    };
     try {
-      // check if image or  first
-      if (
-        file.type === "image/jpeg" ||
-        file.type === "image/png" ||
-        file.type === "image/jpg"
-      ) {
-        result = await axios.post(
-          "http://localhost:5001/api/v1/upload-image",
-          formData
-        );
-      } else {
-        result = await axios.post(
-          "http://localhost:5001/api/v1/upload",
-          formData
-        );
-      }
+      fetchMessages();
+      fetchMetadata();
     } catch (error) {
-      console.error("Error uploading the file:", error);
+      console.log(error);
     }
-    if (result.data.id) {
-      setId(result.data.id);
-      setSummary(result.data.summary); // Set the summary after uploading
-      setFileName(result.data.filename);
-    }
-  };
+  }, [id]);
 
   const sendMessage = async () => {
     const payload = {
@@ -84,23 +75,6 @@ function DocumentChat() {
         </div>
         <hr className="section-divider"></hr>
         <div className="chat-input">
-          {!id && (
-            <div className="row">
-              <div className="col-md-8">
-                <input
-                  type="file"
-                  onChange={onFileChange}
-                  accept=".pdf,.jpeg,.jpg,.png" // TODO accept  and images
-                  className="form-control choose-file"
-                />
-              </div>
-              <div className="col-md-4">
-                <button onClick={onUpload} className="btn btn-primary">
-                  Upload
-                </button>
-              </div>
-            </div>
-          )}
           {id && (
             <div className="row">
               <div className="col-md-8">
@@ -125,30 +99,30 @@ function DocumentChat() {
         </div>
       </div>
       <div className="document-panel">
-        <div className="document-header">{fileName}</div>
-        <div className="document-content">
-          {/* ADD DOCUMENT ITSELF HERE TO VIEW */}
-          {file && (file.type === "application/pdf" ? (
-            <Document file={file} onLoadError={(error) => console.error(error)}>
-              <Page
-                pageNumber={1}
-                onRenderError={(error) => console.error(error)}
-              />
-            </Document>
-          ) : (
-            <img src={URL.createObjectURL(file)} alt="uploaded file" />
-          ))}
-        </div>
+        {/* ADD DOCUMENT ITSELF HERE TO VIEW */}
+        {fileUrl && metadata && (
+          <div>
+            <div className="document-header">{metadata['file_name']}</div>
+            <div className="document-content">
+              {metadata["content_type"] === "application/pdf" ? (
+                <Document
+                  file={fileUrl}
+                  onLoadError={(error) => console.error(error)}
+                >
+                  <Page
+                    pageNumber={1}
+                    onRenderError={(error) => console.error(error)}
+                  />
+                </Document>
+              ) : (
+                <img src={fileUrl} alt="metadata['file_name']" />
+              )}
+            </div>
+          </div>
+        )}
       </div>
       {/* If there's a summary after uploading the doc, display it */}
-      {summary && (
-        <div className="document-panel">
-          <div className="document-header">Summary</div>
-          <div className="document-content">
-            <p>{summary}</p>
-          </div>
-        </div>
-      )}
+      {fileUrl && metadata && <Summary id={metadata} />}
     </div>
   );
 }
