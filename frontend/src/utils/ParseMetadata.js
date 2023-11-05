@@ -2,6 +2,11 @@
 // deserialize the metadata from the document
 // make a way to view summary nicely
 
+
+
+//TODO:
+// metadata['classification_data'] = urllib.parse.unquote(metadata['classification_data'])
+
 // This function deserializes the classification_data from JSON string to an object
 const deserializeClassificationData = (classificationDataString) => {
     try {
