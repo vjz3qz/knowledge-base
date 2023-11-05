@@ -10,6 +10,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 function DocumentChat() {
   const { id } = useParams();
+
   const [fileUrl, setFileUrl] = useState("");
   const [metadata, setMetadata] = useState({});
 
@@ -19,7 +20,7 @@ function DocumentChat() {
   // Function to initialize chat when component mounts or when document ID changes
   useEffect(() => {
     const fetchMessages = async () => {
-      const result = await axios.get(`http://localhost:5001/api/v1/view/${id}`);
+      const result = await axios.get(`http://localhost:5001/api/v2/view/${id}`);
       setFileUrl(result.data.url);
     };
 
@@ -28,8 +29,8 @@ function DocumentChat() {
         `http://localhost:5001/api/v2/view-metadata/${id}`
       );
       // Here you would load the document's details, including fetching the summary and setting the file name
-
-      setMetadata(result.data.metadata);
+      setMetadata(result.data);
+      
     };
     try {
       fetchMessages();
@@ -41,12 +42,13 @@ function DocumentChat() {
 
   const sendMessage = async () => {
     const payload = {
-      current_message: inputValue,
+      user_message: inputValue,
       conversation_history: messages.map((m) => m.content),
       id: id,
+      file_type: metadata["file_type"],
     };
     const result = await axios.post(
-      "http://localhost:5001/api/v1/document-chat",
+      "http://localhost:5001/api/v2/document-chat",
       payload
     );
     const responseMessage = result.data.response;
@@ -100,9 +102,9 @@ function DocumentChat() {
       </div>
       <div className="document-panel">
         {/* ADD DOCUMENT ITSELF HERE TO VIEW */}
-        {fileUrl && metadata && (
+        {id && fileUrl && metadata && (
           <div>
-            <div className="document-header">{metadata['file_name']}</div>
+            <div className="document-header">{metadata['name']}</div>
             <div className="document-content">
               {metadata["content_type"] === "application/pdf" ? (
                 <Document
@@ -115,14 +117,14 @@ function DocumentChat() {
                   />
                 </Document>
               ) : (
-                <img src={fileUrl} alt="metadata['file_name']" />
+                <img src={fileUrl} alt={metadata['name']} />
               )}
             </div>
           </div>
         )}
       </div>
       {/* If there's a summary after uploading the doc, display it */}
-      {fileUrl && metadata && <Summary id={metadata} />}
+      {id && fileUrl && metadata && <Summary id={id} metadata={metadata} />}
     </div>
   );
 }
