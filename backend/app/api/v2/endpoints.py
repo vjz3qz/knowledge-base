@@ -167,5 +167,14 @@ def document_chat():
 @v2.route('/view-metadata/<file_id>', methods=['GET'])
 @cross_origin()
 def get_metadata(file_id):
+    """
+    Endpoint for retrieving the metadata of a document.
+
+    Parameters:
+    file_id (str): The unique identifier of the document.
+
+    Returns:
+    JSON: A JSON object containing the metadata of the document.
+    """
     metadata = get_metadata_from_s3(file_id)
     return jsonify(metadata)

@@ -44,7 +44,8 @@ def text_file_handler(text_file, llm, content_type):
 
     metadata = {
         "name": text_file.filename,
-        "summary": summary
+        "summary": summary,
+        "content_type": content_type
     }
     upload_document_to_s3(text_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
 
@@ -114,7 +115,8 @@ def diagram_file_handler(diagram_file, llm, content_type):
     metadata = {
         "name": diagram_file.filename,
         "summary": text_representation,
-        "classification_data": classification_data
+        "classification_data": classification_data,
+        "content_type": content_type
     }
     # add file to S3 bucket: trace-ai-knowledge-base-documents
     upload_document_to_s3(diagram_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
