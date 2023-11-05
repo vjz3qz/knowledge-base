@@ -25,6 +25,7 @@ embedding = OpenAIEmbeddings(openai_api_key=api_key)
 PERSISTENT_DIRECTORY = "../vector_database/chroma_db"
 
 persistent_client = chromadb.PersistentClient(path=PERSISTENT_DIRECTORY)
+# persistent_client.reset()
 chroma_db = Chroma(client=persistent_client)
 
 
@@ -33,6 +34,11 @@ def add_text_to_chroma(texts, file_id):
 
     # Chunk/Page Level Hash
     chunk_ids = [generate_unique_id(chunk) for chunk in texts]
+    # FIX
+    set_chunk_ids = set(chunk_ids)
+    if len(set_chunk_ids) != len(chunk_ids):
+        print("Duplicate chunks detected.")
+        return
 
     # TODO Step 2: Check for duplicates
     for id in chunk_ids:
@@ -46,9 +52,12 @@ def add_text_to_chroma(texts, file_id):
                for chunk, id in zip(texts, chunk_ids)]
 
     # Step 3: Embed and store the document
-    chroma_db.from_texts(texts, embedding, metadatas=sources,
-                         ids=chunk_ids, persist_directory=PERSISTENT_DIRECTORY)
-    print(f"Document added successfully.")
+    try:
+        chroma_db.from_texts(texts, embedding, metadatas=sources,
+                            ids=chunk_ids, persist_directory=PERSISTENT_DIRECTORY)
+        print(f"Document added successfully.")
+    except Exception as e:
+        print(e)
 
 
 def search_in_chroma(query, chroma_db=None):
