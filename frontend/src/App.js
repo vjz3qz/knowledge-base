@@ -6,6 +6,7 @@ import DocumentChat from './pages/DocumentChat';
 import OperatorChat from './pages/OperatorChat';
 import DocumentSearch from './pages/DocumentSearch';
 import Dashboard from './pages/Dashboard';
+import Upload from './pages/Upload';
 import './styles/App.css'; // Assuming you have an App.css file for the styles
 
 
@@ -20,6 +21,7 @@ function App() {
         <div className="content-wrapper">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />}/>
+            <Route path="/upload" element={<Upload />}/>
             <Route path="/document-search" element={<DocumentSearch />}/>
             <Route path="/document-chat" element={<DocumentChat />} />
             <Route path="/incident-reports" element={<OperatorChat/>} />

@@ -22,7 +22,7 @@ const DocumentSearch = () => {
         const payload = {
           query: searchTerm,
         };
-        const result = await axios.post("http://localhost:5001/api/v1/search-k", payload);
+        const result = await axios.post("http://localhost:5001/api/v2/search/3", payload);
 
         // TODO add this to the backend
         const data = result.data;
@@ -38,6 +38,14 @@ const DocumentSearch = () => {
         }
         setResults(results);
       };
+
+    // This function will navigate to the DocumentChat component with the document's details
+    const goToChat = (document) => {
+        // Assuming you're using React Router, you would navigate like this:
+        // props.history.push(`/document-chat/${document.id}`);
+        // For now, we're just logging it to the console:
+        console.log(`Go to chat for document: ${document.id}`);
+    };
 
     return (
         <div className="container">
@@ -73,7 +81,11 @@ const DocumentSearch = () => {
                     <div className="document-content">
                         <h2>{selectedDocument.name}</h2>
                         <p>{selectedDocument.date}</p>
-                        <p>{selectedDocument.summary}</p>                        
+                        <p>{selectedDocument.summary}</p>   
+                        {/* Add a chat button in the summary section */}
+                        <button onClick={() => goToChat(selectedDocument)} className="btn btn-secondary">
+                            Go to Chat
+                        </button>                     
                         <Document
                             file={selectedDocument.url}
                             onLoadError={error => console.error(error)}

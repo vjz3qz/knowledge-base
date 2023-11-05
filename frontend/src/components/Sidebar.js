@@ -11,6 +11,7 @@ const Sidebar = () => {
             </div>
             <div className="menu-items">
                 {/* <Link to="/dashboard"><FiBarChart className="menu-icon" />Dashboard</Link> */}
+                <Link to="/upload"><FiFileText className="menu-icon" />Upload</Link>
                 <Link to="/document-search"><FiSearch className="menu-icon" />Document Search</Link>
                 <Link to="/document-chat"><FiFileText className="menu-icon" />Document Chat</Link>
                 <Link to="/incident-reports"><FiInbox className="menu-icon" />Operator Reporting</Link>
