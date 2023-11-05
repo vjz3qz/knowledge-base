@@ -18,6 +18,8 @@ faiss-cpu = "*"
 fpdf = "*"
 boto3 = "*"
 chromadb = "*"
+docx = "*"
+python-docx = "*"
 
 [dev-packages]
 

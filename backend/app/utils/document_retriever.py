@@ -17,57 +17,36 @@ bucket_name = os.environ.get('S3_BUCKET_NAME')
 s3 = boto3.client('s3')
 lambda_client = boto3.client('lambda')
 
+# file, file_id, metadata, content_type, bucket_name, prefix = ""
+def upload_document_to_s3(file, file_id, metadata = {}, content_type = "", bucket = bucket_name, prefix = ""):
 
-def upload_document_to_s3(file, unique_id, file_name="", summary=""):
-    if not file_name:
-        file_name = unique_id
+    if not content_type:
+        res = get_file_extension(file_id)[0]
+        content_type = res if res else 'application/octet-stream'
     
+    if prefix:
+        key = prefix + "/" + file_id
+    else:
+        key = file_id
+
     # Metadata
-    metadata = {
-        'name': file_name,
-        'summary': summary
-    }
-    res = get_file_extension(file_name)[0]
-    content_type = res if res else 'application/octet-stream'
+    final_metadata = {}
+    if 'name' in metadata:
+        final_metadata['name'] = metadata['name']
+    if 'summary' in metadata:
+        final_metadata['summary'] = metadata['summary']
+    if 'classification_data' in metadata:
+        final_metadata['classification_data'] = metadata['classification_data']
 
     # Upload to S3 using the hash as the key
     s3.upload_fileobj(
         Fileobj=file,
         Bucket=bucket_name,
-        Key=unique_id,
+        Key=file_id,
         ExtraArgs={'Metadata': metadata, 'ContentType': content_type}
     )
 
-    return unique_id
-
-
-
-def upload_image_to_s3(image, unique_id, image_name="", bucket=bucket_name, prefix = ""):
-    if not image_name:
-        image_name = unique_id
-    
-    if prefix:
-        key = prefix + "/" + unique_id
-    else:
-        key = unique_id
-    # Metadata
-    metadata = {
-        'name': image_name,
-    }
-
-    type, extension = get_file_extension(image_name)
-    content_type = type if type else "binary/octet-stream"
-
-
-    # Upload to S3 using the hash as the key
-    s3.upload_fileobj(
-        Fileobj=image,
-        Bucket=bucket,
-        Key=key,
-        ExtraArgs={'Metadata': metadata, 'ContentType': content_type}
-    )
-
-    return unique_id
+    return file_id
 
 
 def get_metadata_from_s3(unique_id):
@@ -99,15 +78,12 @@ def extract_text_from_s3(unique_id):
 
 client = boto3.client('lambda')
 
-def call_lambda_function(image_id, content_type, file_extension):
+def call_lambda_function(image_id):
     response = lambda_client.invoke(
         FunctionName='yolov5-lambda',
         InvocationType='RequestResponse',  # Synchronous invocation
         Payload=json.dumps({
-            'image_id': image_id,
-            'content_type': content_type,
-            'file_extension': file_extension
-            # 's3_url': 'https://s3-your-region.amazonaws.com/your-bucket-name/your-image-path.jpg'
+            'image_id': image_id
         })
     )
 
