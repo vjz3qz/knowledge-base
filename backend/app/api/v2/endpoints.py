@@ -11,6 +11,7 @@ from langchain.chat_models import ChatOpenAI
 from app.utils.determine_intent import determine_intent
 from app.utils.document_retriever import get_url_from_s3, get_metadata_from_s3
 from app.controllers.upload_controller import upload_file_handler
+from app.controllers.rag_controller import rag_handler
 
 from app.utils.vector_database_retriever import search_k_in_chroma
 
