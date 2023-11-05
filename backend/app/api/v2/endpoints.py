@@ -65,8 +65,9 @@ def upload():
     if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']:
         return jsonify({"error": "Invalid content type"}), 400
     
-    upload_file_handler(uploaded_file, llm, content_type, file_type)
-        
+    status = upload_file_handler(uploaded_file, llm, content_type, file_type)
+    if status == 400:
+        return jsonify({"error": "Invalid file format"}), 400
     return "Success", 200
 
 
@@ -78,6 +79,9 @@ def view_file(file_id):
 
     Parameters:
     file_id (str): The unique identifier of the document.
+    bucket (str, optional): The name of the S3 bucket. Passed as a query parameter.
+    prefix (str, optional): The prefix of the file in the S3 bucket. Passed as a query parameter.
+    classification_data (str, optional): If 'true', retrieves classification data instead of the file. Passed as a query parameter.
 
     Returns:
     JSON: A JSON object containing the URL of the document in S3.
@@ -89,8 +93,13 @@ def view_file(file_id):
     if not isinstance(file_id, str) or not file_id:
         return jsonify({"error": "Invalid file id"}), 400
     
+    bucket = request.args.get('bucket', "")
+    prefix = request.args.get('prefix', "")
+    classification_data = request.args.get('classification_data', "false").lower() == "true"
+    if classification_data:
+        bucket = "trace-ai-classification-data"
     try:
-        url = get_url_from_s3(file_id)
+        url = get_url_from_s3(file_id, bucket, prefix)
     except Exception as e:
         # Log the exception (not shown here)
         return jsonify({"error": "Server error"}), 500
@@ -123,11 +132,11 @@ def search_k(k):
     query = request.json['query']
 
     try:
-        results = search_k_in_chroma(query, k)
+        results = search_k_in_chroma(query, int(k))
     except Exception as e:
         # Optionally log the exception (not shown here)
+        print(e)
         return jsonify({"error": "Server error"}), 500
-
     return jsonify(results)
 
 
@@ -160,7 +169,6 @@ def document_chat():
     response = rag_handler(user_message, file_id, intent, llm, file_type)
     # if text, extract text from file
     # if diagram, pass image summary and table text representation to llm
-
     return jsonify({"response": response})
 
 
