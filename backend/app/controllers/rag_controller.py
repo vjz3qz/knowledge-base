@@ -28,6 +28,7 @@ def text_rag_handler(current_message, file_id, intent, llm):
     return response
 
 def diagram_rag_handler(current_message, file_id, intent, llm):
+    return "test"
     image_summary = extract_image_summary_from_s3(file_id)
     table_text = extract_table_text_from_s3(file_id)
 
