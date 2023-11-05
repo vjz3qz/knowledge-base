@@ -22,14 +22,14 @@ const Upload = () => {
       setUploadStatus('Please select a file to upload.');
       return;
     }
-
+    setUploadStatus('Uploading...');
     const formData = new FormData();
     formData.append('file', file);
     formData.append('content_type', file.type);
     formData.append('file_type', uploadType);
 
     try {
-      const response = await axios.post('/upload', formData, {
+      const response = await axios.post('http://localhost:5001/api/v2/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
