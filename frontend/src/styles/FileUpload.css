@@ -1,0 +1,11 @@
+/* Adjust the spacing between the radio button and the text */
+.btn-group-toggle label {
+    align-items: center;
+    display: flex;
+    padding-left: 1rem; /* Adds space on the left of the text */
+}
+
+/* Change the background color of the radio buttons when not active */
+.btn-group{
+    background-color: #d1d1d1; /* A light gray color */
+}
