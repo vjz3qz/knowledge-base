@@ -8,6 +8,21 @@ from app.utils.summarize_document import summarize_document
 from app.utils.vector_database_retriever import add_text_to_chroma
 from app.utils.document_retriever import upload_document_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
 from app.utils.diagram_parser import serialize_to_json, deserialize_from_json, parse_results, create_text_representation
+import subprocess
+import tempfile
+import os
+
+
+
+
+
+
+# Path to the LLaVA models. Consider environment variables for production settings.
+MODEL_DIR = "/Users/varunpasupuleti/Documents/TraceAI/knowledge-base/backend/models"
+LLAVA_BINARY_PATH = '/Users/varunpasupuleti/Desktop/llama.cpp/llava'
+
+
+
 
 def upload_file_handler(uploaded_file, llm, content_type, file_type):
     if file_type == 'text':
@@ -81,9 +96,13 @@ def extract_docx_text(docx_file):
         # add text representation to chroma
         # add file to S3 bucket: trace-ai-documents
 
+
+
+
 def diagram_file_handler(diagram_file, llm, content_type):
     if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
         return 400
+
     # Read the binary content of the file
     diagram_content = diagram_file.read()
 
@@ -101,8 +120,14 @@ def diagram_file_handler(diagram_file, llm, content_type):
     # upload temporary file to S3: trace-ai-images/input-images
     upload_document_to_s3(diagram_file_copy1, file_id, content_type = content_type, bucket='trace-ai-images', prefix='input-images')
 
-    # generate summary: call lambda function to get class counts, bounding boxes, and confidence scores
+    # call lambda function to get class counts, bounding boxes, and confidence scores
     lambda_response = call_lambda_function(file_id)
+
+    # get s3 url for image
+    image_url = get_url_from_s3(file_id, bucket='trace-ai-images', prefix='input-images')
+
+    # generate image summary
+    image_summary = summarize_image(image_url)
 
     # get results for lambda function response
     results = json.loads(lambda_response['body']).get('results', None)
@@ -139,9 +164,63 @@ def diagram_file_handler(diagram_file, llm, content_type):
     upload_document_to_s3(diagram_file_copy2, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
 
     # TODO delete temporary file from S3: trace-ai-images/input-images
+    # TODO upload processed image to S3: trace-ai-images/processed-images
+
     return 200
 
 
 
+def draw_boxes(image, results):
+    predictions = results['predictions'][0]
+    boxes = predictions['output_0']
+    confidences = predictions['output_1']
+    class_ids = predictions['output_2']
+    labels = [str(int(class_id)) for class_id in class_ids]  # Convert class IDs to string labels; adjust as needed
+
+    for box, confidence, label in zip(boxes, confidences, labels):
+        if all(v == 0.0 for v in box):  # skip boxes with all zeros
+            continue
+        x1, y1, x2, y2 = map(int, [box[0] * image.shape[1], box[1] * image.shape[0], box[2] * image.shape[1],
+                                   box[3] * image.shape[0]])
+        label_with_confidence = f"{label} ({confidence:.2f})"
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(image, label_with_confidence, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    return image
 
 
+
+def summarize_image(image_url):
+    return 0
+
+def summarize_image_llava(diagram_file):
+
+    extension = os.path.splitext(diagram_file.filename)[1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as temp_file:
+        diagram_file.save(temp_file.name)
+
+        # Prepare the LLaVA command
+        llava_command = [
+            LLAVA_BINARY_PATH,
+            '-m', os.path.join(MODEL_DIR, 'ggml-model-q5_k.gguf'),
+            '--mmproj', os.path.join(MODEL_DIR, 'mmproj-model-f16.gguf'),
+            '--temp', '0.1',
+            '-p', 'Describe the image in detail. Be specific about symbols and connections.',
+            '--image', "/Users/varunpasupuleti/Documents/TraceAI/test_documents/image.jpeg"
+        ]
+        summary = ""
+        try:
+            # Run the LLaVA command
+            output = subprocess.check_output(llava_command, text=True)
+
+            # Extract the summary from the output
+            summary = output.strip()
+            os.unlink(temp_file.name)
+        except subprocess.CalledProcessError as e:
+            os.unlink(temp_file.name)
+            # Handle errors in LLaVA inference
+            print(f"LLaVA error: {e}")
+            return 400
+
+
+    return summary
