@@ -33,3 +33,4 @@ node_modules
 vector_database/*
 
 backend/app/__pycache__/
+backend/models/*
