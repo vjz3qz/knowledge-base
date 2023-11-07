@@ -130,6 +130,7 @@ def diagram_file_handler(diagram_file, llm, content_type):
     image_url = get_url_from_s3(file_id, bucket='trace-ai-images', prefix='input-images')
 
     # generate image summary
+    # TODO: eventually include class counts, connections, spatial relationships, etc. to prompt
     prompt = f"Generate a concise summary of the provided engineering diagram {diagram_file.filename}, emphasizing the overall function of the system, the individual components, and the connections between components."
     image_summary = summarize_image(image_url, prompt)
 
