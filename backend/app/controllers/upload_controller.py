@@ -13,7 +13,6 @@ import tempfile
 import os
 from PIL import Image
 from openai import OpenAI
-# from langchain.chat_models import ChatOpenAI
 
 
 
@@ -144,7 +143,7 @@ def diagram_file_handler(diagram_file, llm, content_type):
     text_representation = create_text_representation(diagram_file.filename, class_counts, bounding_boxes, confidence_scores)
 
     # add file to chroma OR summary to chroma
-    chunked_text = chunk_text(image_summary)
+    chunked_text = chunk_text(image_summary + text_representation)
     add_text_to_chroma(chunked_text, file_id)
 
     classification_data = serialize_to_json(diagram_file.filename, class_counts, bounding_boxes, confidence_scores, results)
@@ -153,7 +152,8 @@ def diagram_file_handler(diagram_file, llm, content_type):
         "name": diagram_file.filename,
         "summary": image_summary,
         "content_type": content_type,
-        "file_type": "diagram"
+        "file_type": "diagram",
+        "symbol_summary": text_representation,
     }
 
     # Convert the dictionary to a JSON string
