@@ -19,9 +19,13 @@ chromadb = "*"
 docx = "*"
 python-docx = "*"
 openai = "*"
-langchain = "*"
+langchain = "==0.0.331rc2"
+opencv-python = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.11"
+
+[pipenv]
+allow_prereleases = true

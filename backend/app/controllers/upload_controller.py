@@ -13,8 +13,9 @@ import tempfile
 import os
 from PIL import Image
 from openai import OpenAI
-
-
+import numpy as np
+import cv2
+import base64
 
 client = OpenAI()
 
@@ -27,9 +28,9 @@ LLAVA_BINARY_PATH = '/Users/varunpasupuleti/Desktop/llama.cpp/llava'
 
 def upload_file_handler(uploaded_file, llm, content_type, file_type):
     if file_type == 'text':
-        text_file_handler(uploaded_file, llm, content_type)
+        return text_file_handler(uploaded_file, llm, content_type)
     elif file_type == 'diagram':
-        diagram_file_handler(uploaded_file, llm, content_type)
+        return diagram_file_handler(uploaded_file, llm, content_type)
 
 
 # 'text':
@@ -101,19 +102,20 @@ def extract_docx_text(docx_file):
 
 
 def diagram_file_handler(diagram_file, llm, content_type):
-    if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
+    # if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
+    if content_type not in ['image/jpeg', 'image/png']:
         return 400
 
     # Read the binary content of the file
     diagram_content = diagram_file.read()
+    diagram_file.seek(0)  # Go back to the start of the file
+    image = Image.open(diagram_file) 
 
     # Create an in-memory file-like object from the original content
     diagram_file_copy1 = BytesIO(diagram_content)
     diagram_file_copy2 = BytesIO(diagram_content)
-    diagram_file_copy3 = BytesIO(diagram_content)
     diagram_file_copy1.seek(0)
     diagram_file_copy2.seek(0)
-    diagram_file_copy3.seek(0)
     # Generate a unique ID for the PDF file or image
     if content_type == 'application/pdf':
         file_id = generate_unique_id(diagram_content, 'binary')
@@ -131,7 +133,8 @@ def diagram_file_handler(diagram_file, llm, content_type):
 
     # generate image summary
     # TODO: eventually include class counts, connections, spatial relationships, etc. to prompt
-    prompt = f"Generate a concise summary of the provided engineering diagram {diagram_file.filename}, emphasizing the overall function of the system, the individual components, and the connections between components."
+    
+    prompt = f"what's in the image, {diagram_file.filename}? Be specific about symbols and connections. Be sure to include the file name in your response."
     image_summary = summarize_image(image_url, prompt)
 
     # get results for lambda function response
@@ -147,14 +150,13 @@ def diagram_file_handler(diagram_file, llm, content_type):
     chunked_text = chunk_text(image_summary + text_representation)
     add_text_to_chroma(chunked_text, file_id)
 
-    classification_data = serialize_to_json(diagram_file.filename, class_counts, bounding_boxes, confidence_scores, results)
+    classification_data = serialize_to_json(diagram_file.filename, class_counts, bounding_boxes, confidence_scores, results, image_summary)
 
     metadata = {
         "name": diagram_file.filename,
-        "summary": image_summary,
+        "summary": text_representation,
         "content_type": content_type,
         "file_type": "diagram",
-        "symbol_summary": text_representation,
     }
 
     # Convert the dictionary to a JSON string
@@ -165,28 +167,29 @@ def diagram_file_handler(diagram_file, llm, content_type):
 
     # Create a file-like object from the JSON bytes
     classification_dataobj = BytesIO(classification_data_bytes)
-    upload_document_to_s3(classification_dataobj, file_id, content_type='application/json', bucket='trace-ai-classification-data')
+    upload_document_to_s3(classification_dataobj, file_id, content_type='application/json', bucket='trace-ai-diagram-metadata')
     # # add file to S3 bucket: trace-ai-knowledge-base-documents
     upload_document_to_s3(diagram_file_copy2, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
 
     # delete temporary file from S3: trace-ai-images/input-images
     delete_document_from_s3(file_id, bucket='trace-ai-images', prefix='input-images')
-    # annotate image with bounding boxes and class labels
-    image = Image.open(diagram_file_copy3) 
+    # annotate image with bounding boxes and class labels 
     annotated_image = draw_bounding_boxes(image, results)
 
     img_byte_arr = BytesIO()
-    annotated_image.save(img_byte_arr, format=image.format)
-    img_byte_arr = img_byte_arr.getvalue()
+    annotated_image.save(img_byte_arr, format=content_type.split('/')[-1].upper())
+    img_byte_arr.seek(0)
     # upload processed image to S3: trace-ai-images/processed-images
     upload_document_to_s3(img_byte_arr, file_id, content_type=content_type, bucket='trace-ai-images', prefix='processed-images')
-
-
+    print(image_summary)
     return 200
 
 
 
 def draw_bounding_boxes(image, results):
+    cv_image = np.array(image)
+    # Convert RGB to BGR for OpenCV
+    cv_image = cv_image[:, :, ::-1].copy()
     predictions = results['predictions'][0]
     boxes = predictions['output_0']
     confidences = predictions['output_1']
@@ -196,13 +199,13 @@ def draw_bounding_boxes(image, results):
     for box, confidence, label in zip(boxes, confidences, labels):
         if all(v == 0.0 for v in box):  # skip boxes with all zeros
             continue
-        x1, y1, x2, y2 = map(int, [box[0] * image.shape[1], box[1] * image.shape[0], box[2] * image.shape[1],
-                                   box[3] * image.shape[0]])
+        x1, y1, x2, y2 = map(int, [box[0] * cv_image.shape[1], box[1] * cv_image.shape[0], box[2] * cv_image.shape[1],
+                                   box[3] * cv_image.shape[0]])
         label_with_confidence = f"{label} ({confidence:.2f})"
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(image, label_with_confidence, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.rectangle(cv_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(cv_image, label_with_confidence, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    return image
+    return Image.fromarray(cv_image[:, :, ::-1])
 
 
 

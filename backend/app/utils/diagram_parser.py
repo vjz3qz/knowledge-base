@@ -34,14 +34,15 @@ def create_text_representation(file_name, class_counts, bounding_boxes, confiden
     
     return text_representation
 
-def serialize_to_json(file_name, class_counts, bounding_boxes, confidence_scores, results):
+def serialize_to_json(file_name, class_counts, bounding_boxes, confidence_scores, results, summary):
     # Create a dictionary of all the data
     data = {
         "file_name": file_name,
         "class_counts": class_counts,
         "bounding_boxes": bounding_boxes,
         "confidence_scores": confidence_scores,
-        "results": results 
+        "results": results,
+        "summary": summary
     }
     
     # Convert the dictionary to a JSON string
@@ -59,5 +60,6 @@ def deserialize_from_json(json_string):
     bounding_boxes = data["bounding_boxes"]
     confidence_scores = data["confidence_scores"]
     results = data["results"] 
+    summary = data["summary"]
     
-    return file_name, class_counts, bounding_boxes, confidence_scores, results
+    return file_name, class_counts, bounding_boxes, confidence_scores, results, summary
