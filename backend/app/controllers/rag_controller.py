@@ -8,7 +8,7 @@ from app.utils.document_retriever import extract_text_from_s3
 def rag_handler(current_message, file_id, intent, llm, file_type):
     if file_type not in ['text', 'diagram']:
         return {"Error": "Invalid file type"}
-        
+
     if file_type == 'text':
         text = extract_text_from_s3(file_id)
 
@@ -17,7 +17,7 @@ def rag_handler(current_message, file_id, intent, llm, file_type):
         metadata = get_metadata_from_s3(file_id)
         summary = metadata['summary']
         symbol_summary = metadata['symbol_summary']
-        text = summary + symbol_summary
+        text = summary + symbol_summary # TODO potentially add file name
 
     chunks = chunk_text(text)
 
