@@ -50,16 +50,18 @@ def serialize_to_json(file_name, class_counts, bounding_boxes, confidence_scores
     return json_string
 
 
-def deserialize_from_json(json_string):
-    # Parse the JSON string back into a Python dictionary
-    data = json.loads(json_string)
-    
+def deserialize_from_json(json_content):
+    # Decode the bytes to a string and then parse the JSON back into a Python dictionary
+
+    if not isinstance(json_content, dict):
+        # Try to parse it as JSON if it's not already a dictionary
+        json_content = json.loads(json_content)
     # Extract the data
-    file_name = data["file_name"]
-    class_counts = data["class_counts"]
-    bounding_boxes = data["bounding_boxes"]
-    confidence_scores = data["confidence_scores"]
-    results = data["results"] 
-    summary = data["summary"]
-    
+    file_name = json_content["file_name"]
+    class_counts = json_content["class_counts"]
+    bounding_boxes = json_content["bounding_boxes"]
+    confidence_scores = json_content["confidence_scores"]
+    results = json_content["results"]
+    summary = json_content["summary"]
+
     return file_name, class_counts, bounding_boxes, confidence_scores, results, summary
