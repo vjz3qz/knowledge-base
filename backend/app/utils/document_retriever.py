@@ -59,6 +59,14 @@ def get_metadata_from_s3(unique_id):
     return metadata
 
 
+def delete_document_from_s3(unique_id, bucket, prefix = ""):
+    if prefix:
+        key = prefix + "/" + unique_id
+    else:
+        key = unique_id
+    s3.delete_object(Bucket=bucket, Key=key)
+
+
 def get_url_from_s3(unique_id, bucket=bucket_name, prefix = ""):
     if not bucket:
         bucket = bucket_name

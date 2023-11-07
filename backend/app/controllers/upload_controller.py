@@ -6,16 +6,18 @@ import json
 from app.utils.document_processor import extract_text_from_stream
 from app.utils.summarize_document import summarize_document
 from app.utils.vector_database_retriever import add_text_to_chroma
-from app.utils.document_retriever import upload_document_to_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
+from app.utils.document_retriever import upload_document_to_s3, delete_document_from_s3, get_metadata_from_s3, get_url_from_s3, extract_text_from_s3, call_lambda_function
 from app.utils.diagram_parser import serialize_to_json, deserialize_from_json, parse_results, create_text_representation
 import subprocess
 import tempfile
 import os
+from PIL import Image
+from openai import OpenAI
+# from langchain.chat_models import ChatOpenAI
 
 
 
-
-
+client = OpenAI()
 
 # Path to the LLaVA models. Consider environment variables for production settings.
 MODEL_DIR = "/Users/varunpasupuleti/Documents/TraceAI/knowledge-base/backend/models"
@@ -109,8 +111,10 @@ def diagram_file_handler(diagram_file, llm, content_type):
     # Create an in-memory file-like object from the original content
     diagram_file_copy1 = BytesIO(diagram_content)
     diagram_file_copy2 = BytesIO(diagram_content)
+    diagram_file_copy3 = BytesIO(diagram_content)
     diagram_file_copy1.seek(0)
     diagram_file_copy2.seek(0)
+    diagram_file_copy3.seek(0)
     # Generate a unique ID for the PDF file or image
     if content_type == 'application/pdf':
         file_id = generate_unique_id(diagram_content, 'binary')
@@ -127,7 +131,8 @@ def diagram_file_handler(diagram_file, llm, content_type):
     image_url = get_url_from_s3(file_id, bucket='trace-ai-images', prefix='input-images')
 
     # generate image summary
-    image_summary = summarize_image(image_url)
+    prompt = f"Generate a concise summary of the provided engineering diagram {diagram_file.filename}, emphasizing the overall function of the system, the individual components, and the connections between components."
+    image_summary = summarize_image(image_url, prompt)
 
     # get results for lambda function response
     results = json.loads(lambda_response['body']).get('results', None)
@@ -139,14 +144,14 @@ def diagram_file_handler(diagram_file, llm, content_type):
     text_representation = create_text_representation(diagram_file.filename, class_counts, bounding_boxes, confidence_scores)
 
     # add file to chroma OR summary to chroma
-    chunked_text = chunk_text(text_representation)
+    chunked_text = chunk_text(image_summary)
     add_text_to_chroma(chunked_text, file_id)
 
     classification_data = serialize_to_json(diagram_file.filename, class_counts, bounding_boxes, confidence_scores, results)
 
     metadata = {
         "name": diagram_file.filename,
-        "summary": text_representation,
+        "summary": image_summary,
         "content_type": content_type,
         "file_type": "diagram"
     }
@@ -163,14 +168,24 @@ def diagram_file_handler(diagram_file, llm, content_type):
     # # add file to S3 bucket: trace-ai-knowledge-base-documents
     upload_document_to_s3(diagram_file_copy2, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
 
-    # TODO delete temporary file from S3: trace-ai-images/input-images
-    # TODO upload processed image to S3: trace-ai-images/processed-images
+    # delete temporary file from S3: trace-ai-images/input-images
+    delete_document_from_s3(file_id, bucket='trace-ai-images', prefix='input-images')
+    # annotate image with bounding boxes and class labels
+    image = Image.open(diagram_file_copy3) 
+    annotated_image = draw_bounding_boxes(image, results)
+
+    img_byte_arr = BytesIO()
+    annotated_image.save(img_byte_arr, format=image.format)
+    img_byte_arr = img_byte_arr.getvalue()
+    # upload processed image to S3: trace-ai-images/processed-images
+    upload_document_to_s3(img_byte_arr, file_id, content_type=content_type, bucket='trace-ai-images', prefix='processed-images')
+
 
     return 200
 
 
 
-def draw_boxes(image, results):
+def draw_bounding_boxes(image, results):
     predictions = results['predictions'][0]
     boxes = predictions['output_0']
     confidences = predictions['output_1']
@@ -190,37 +205,22 @@ def draw_boxes(image, results):
 
 
 
-def summarize_image(image_url):
-    return 0
+def summarize_image(image_url, prompt="Describe the image in detail. Be specific about symbols and connections."):
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": image_url,
+                    },
+                ],
+            }
+        ],
+        max_tokens=300,
+    )
 
-def summarize_image_llava(diagram_file):
-
-    extension = os.path.splitext(diagram_file.filename)[1]
-    with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as temp_file:
-        diagram_file.save(temp_file.name)
-
-        # Prepare the LLaVA command
-        llava_command = [
-            LLAVA_BINARY_PATH,
-            '-m', os.path.join(MODEL_DIR, 'ggml-model-q5_k.gguf'),
-            '--mmproj', os.path.join(MODEL_DIR, 'mmproj-model-f16.gguf'),
-            '--temp', '0.1',
-            '-p', 'Describe the image in detail. Be specific about symbols and connections.',
-            '--image', "/Users/varunpasupuleti/Documents/TraceAI/test_documents/image.jpeg"
-        ]
-        summary = ""
-        try:
-            # Run the LLaVA command
-            output = subprocess.check_output(llava_command, text=True)
-
-            # Extract the summary from the output
-            summary = output.strip()
-            os.unlink(temp_file.name)
-        except subprocess.CalledProcessError as e:
-            os.unlink(temp_file.name)
-            # Handle errors in LLaVA inference
-            print(f"LLaVA error: {e}")
-            return 400
-
-
-    return summary
+    return response.choices[0].message.content

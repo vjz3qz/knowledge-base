@@ -6,8 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 streamlit = "*"
-langchain = "*"
-openai = "*"
 pypdf2 = "*"
 flask-cors = "*"
 async-timeout = "*"
@@ -20,6 +18,8 @@ boto3 = "*"
 chromadb = "*"
 docx = "*"
 python-docx = "*"
+openai = "*"
+langchain = "*"
 
 [dev-packages]
 
