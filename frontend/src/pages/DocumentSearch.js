@@ -18,7 +18,7 @@ const DocumentSearch = () => {
       query: searchTerm,
     };
     const result = await axios.post(
-      "http://localhost:5001/api/v2/search/3",
+      "http://localhost:5001/api/v2/search/1",
       payload
     );
 

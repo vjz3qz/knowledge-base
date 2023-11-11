@@ -24,7 +24,7 @@ def rag_handler(current_message, file_id, intent, llm, file_type):
         else:
             print("Failed to get data:", response.status_code)
             summary = ''
-        symbol_summary = metadata['symbol_summary']
+        symbol_summary = metadata['summary']
         text = summary + symbol_summary # TODO potentially add file name
 
     chunks = chunk_text(text)

@@ -18,9 +18,9 @@ boto3 = "*"
 chromadb = "*"
 docx = "*"
 python-docx = "*"
-openai = "*"
-langchain = "==0.0.331rc2"
 opencv-python = "*"
+openai = "*"
+langchain = "*"
 
 [dev-packages]
 
