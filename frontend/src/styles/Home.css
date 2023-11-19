@@ -1,0 +1,123 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 90px;
+  text-align: center;
+}
+
+.features-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* This adds space between the boxes */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .features-container {
+    flex-direction: column;
+  }
+
+  .feature-box {
+    width: 80%; /* Adjust the width for mobile view */
+    margin-bottom: 20px;
+  }
+}
+
+.feature-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Add this at the bottom of your Home.css file */
+
+/* Style for the container of the action buttons and chat bar */
+.bottom-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  width: 50%;
+}
+
+/* Style for action buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px; /* Adjust the space between buttons */
+  margin-bottom: 20px; /* Space between buttons and chat bar */
+  justify-content: left; /* Center the buttons horizontally */
+}
+
+/* Individual action button style */
+.action-button {
+  padding: 5px 10px; /* Reduced padding for smaller buttons */
+  font-size: 0.8em; /* Smaller font size */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  /* Add any additional styling such as hover effects, font styling, etc. */
+}
+
+/* Style for chat bar */
+.chat-bar {
+  width: 100%; /* Make chat bar wider */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* This spaces out the input and button */
+}
+
+/* Style for the chat input field */
+.chat-input {
+  flex-grow: 1; /* Allows the input to grow and fill the space */
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  margin-right: 10px;
+}
+
+/* Style for the chat send button */
+.chat-send-button {
+  padding: 10px 15px;
+  background-color: #000; /* Assuming a black send button */
+  color: #fff; /* Text color for the send button */
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* Style for the header */
+.header {
+  border-top: 1px solid #000;
+  padding-top: 70px;
+  display: flex;
+  justify-content: flex-start; /* Align children to the left (start) */
+  align-items: center; /* Center vertically */
+}
+
+/* Style for the gray box */
+.logo-box {
+  background-color: #ccc; /* Gray background color */
+  padding: 10px; /* Adjust padding as needed */
+  border-radius: 4px; /* Rounded corners for the box */
+}
+
+.square-logo {
+  width: 40px; /* Adjust the width as needed */
+  height: 40px; /* Adjust the height as needed */
+  padding-left: 20px;
+  padding-top: 10px;
+}
