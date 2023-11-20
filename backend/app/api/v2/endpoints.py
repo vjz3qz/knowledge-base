@@ -59,11 +59,11 @@ def upload():
     content_type = request.form['content_type']
     file_type = request.form['file_type']
 
-    if file_type not in ['text', 'diagram']:
+    if file_type not in ['text', 'diagram', 'video']:
         return jsonify({"error": "Invalid file type"}), 400
 
     # if not appropriate handler, return error
-    if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']:
+    if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'video/mp4']:
         return jsonify({"error": "Invalid content type"}), 400
     
     status = upload_file_handler(uploaded_file, llm, content_type, file_type)

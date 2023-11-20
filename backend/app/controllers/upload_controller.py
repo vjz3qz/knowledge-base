@@ -15,14 +15,14 @@ from PIL import Image
 from openai import OpenAI
 import numpy as np
 import cv2
-import base64
+import base64   
+import whisper
+from pydub import AudioSegment
+import scipy.io.wavfile as wav
+import torch
+
 
 client = OpenAI()
-
-# Path to the LLaVA models. Consider environment variables for production settings.
-MODEL_DIR = "/Users/varunpasupuleti/Documents/TraceAI/knowledge-base/backend/models"
-LLAVA_BINARY_PATH = '/Users/varunpasupuleti/Desktop/llama.cpp/llava'
-
 
 
 
@@ -31,6 +31,59 @@ def upload_file_handler(uploaded_file, llm, content_type, file_type):
         return text_file_handler(uploaded_file, llm, content_type)
     elif file_type == 'diagram':
         return diagram_file_handler(uploaded_file, llm, content_type)
+    elif file_type == 'video':
+        return video_file_handler(uploaded_file, llm, content_type)
+    else:
+        return 400 # invalid file type
+
+def video_file_handler(video_file, llm, content_type):
+    if content_type not in ['video/mp4']:
+        return 400
+
+
+    # call whisper to get transcript and timestamps
+    transcript, time_stamps = whisper_transcribe(video_file)
+    # add transcript, id, and timestamps to chroma
+
+    # add file to S3 bucket: trace-ai-knowledge-base? or trace-ai-knowledge-base-videos?
+    
+    return 200
+
+    
+    #https://platform.openai.com/docs/guides/speech-to-text
+    # post process with gpt4 if needed for spelling errors
+    # pydub to segment if needed in the future
+
+    # then, update RAG handler to handle video files
+    # update chroma
+    # update s3
+    # then, update frontend to handle video files and RAG videos
+
+
+def whisper_transcribe(video_file):
+    model = whisper.load_model("base")
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_file:
+        tmp_file.write(video_file.read())
+        temp_file_path = tmp_file.name
+    try:
+        numpy_audio = whisper.load_audio(temp_file_path)
+        result = model.transcribe(numpy_audio, fp16=False)  # Set fp16 to False since we're using CPU
+
+        # print the recognized text
+        transcript = result['text']
+        time_stamps = result['segments']
+        # language = result['language']
+
+        # TODO transform time stamps
+
+        return transcript, time_stamps
+    except Exception as e:
+        print(e)
+        return None, None
+    
+    
+
+
 
 
 # 'text':

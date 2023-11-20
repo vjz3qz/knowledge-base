@@ -21,6 +21,7 @@ python-docx = "*"
 opencv-python = "*"
 openai = "*"
 langchain = "*"
+openai-whisper = "*"
 
 [dev-packages]
 
