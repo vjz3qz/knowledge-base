@@ -10,8 +10,8 @@ import requests
 def rag_handler(current_message, file_id, intent, llm, file_type):
     if file_type not in ['text', 'diagram']:
         return {"Error": "Invalid file type"}
-
-    if file_type == 'text':
+    
+    if file_type == 'text' or file_type == 'video':
         text = extract_text_from_s3(file_id)
 
     elif file_type == 'diagram':
@@ -26,6 +26,7 @@ def rag_handler(current_message, file_id, intent, llm, file_type):
             summary = ''
         symbol_summary = metadata['summary']
         text = summary + symbol_summary 
+    # elif file_type == 'video':  # TODO: add time stamp support
 
     chunks = chunk_text(text)
 

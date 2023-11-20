@@ -17,8 +17,6 @@ import numpy as np
 import cv2
 import base64   
 import whisper
-from pydub import AudioSegment
-import scipy.io.wavfile as wav
 import torch
 
 
@@ -39,14 +37,32 @@ def upload_file_handler(uploaded_file, llm, content_type, file_type):
 def video_file_handler(video_file, llm, content_type):
     if content_type not in ['video/mp4']:
         return 400
-
-
     # call whisper to get transcript and timestamps
-    transcript, time_stamps = whisper_transcribe(video_file)
+    transcript, texts, time_stamps = whisper_transcribe(video_file)
+    # generate unique id with Document Level Hash
+    file_id = generate_unique_id(transcript, 'text')
     # add transcript, id, and timestamps to chroma
-
+    add_text_to_chroma(texts, file_id, time_stamps)
+    # generate summary
+    summary = summarize_document(texts, llm)
     # add file to S3 bucket: trace-ai-knowledge-base? or trace-ai-knowledge-base-videos?
-    
+    metadata = {
+        "name": video_file.filename,
+        "summary": summary,
+        "content_type": content_type,
+        "file_type": "video"
+    }
+    upload_document_to_s3(video_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-videos')
+    # FOR RAG
+    # Create an in-memory bytes buffer
+    text_file = BytesIO(transcript.encode('utf-8'))
+    metadata = {
+        "name": video_file.filename,
+        "summary": summary,
+        "content_type": "text/plain",
+        "file_type": "text"
+    }
+    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-knowledge-base-documents')
     return 200
 
     
@@ -55,8 +71,6 @@ def video_file_handler(video_file, llm, content_type):
     # pydub to segment if needed in the future
 
     # then, update RAG handler to handle video files
-    # update chroma
-    # update s3
     # then, update frontend to handle video files and RAG videos
 
 
@@ -71,12 +85,13 @@ def whisper_transcribe(video_file):
 
         # print the recognized text
         transcript = result['text']
-        time_stamps = result['segments']
+        segments = result['segments']
         # language = result['language']
 
         # TODO transform time stamps
-
-        return transcript, time_stamps
+        time_stamps = [(segment['start'], segment['end']) for segment in segments]
+        texts = [segment['text'] for segment in segments]
+        return transcript, texts, time_stamps
     except Exception as e:
         print(e)
         return None, None
