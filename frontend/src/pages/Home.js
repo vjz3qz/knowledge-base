@@ -2,13 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Home.css';
-import FeatureBox from '../components/FeatureBox';
-import ExampleBox from '../components/ExampleBox';
-import Header from '../components/Header';
-import ChatBubble from '../components/ChatBubble';
-import FileMessage from '../components/FileMessage';
-import SidePanel from '../components/SidePanel';
-import IframeMessage from '../components/IframeMessage';
+import FeatureBox from '../ui/FeatureBox';
+import ExampleBox from '../ui/ExampleBox';
+import Header from '../ui/Header';
+import ChatBubble from '../ui/ChatBubble';
+import FileMessage from '../ui/FileMessage';
+import SidePanel from '../ui/SidePanel';
+import IframeMessage from '../ui/IframeMessage';
 
 import { FaRegLightbulb } from 'react-icons/fa'; // Example icon for "Examples"
 import { MdOutlineRememberMe } from 'react-icons/md'; // Example icon for "Capabilities"

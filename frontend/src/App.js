@@ -1,5 +1,6 @@
 import React from 'react';
-import Chat from './pages/Chat';
+import Home from './pages/Home';
+import Chat from  './components/Chat';
 
 function App() {
   return (

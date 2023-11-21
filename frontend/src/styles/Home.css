@@ -64,13 +64,24 @@
 }
 
 /* Individual action button style */
-.action-button {
+.action-button-white {
   padding: 5px 10px; /* Reduced padding for smaller buttons */
   font-size: 0.8em; /* Smaller font size */
   border: 1px solid #ddd;
   background-color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  /* Add any additional styling such as hover effects, font styling, etc. */
+}
+
+.action-button-black {
+  padding: 5px 10px; /* Reduced padding for smaller buttons */
+  font-size: 0.8em; /* Smaller font size */
+  border: 1px solid #ddd;
+  background-color: #919191;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white; /* Setting font color to white */
   /* Add any additional styling such as hover effects, font styling, etc. */
 }
 
