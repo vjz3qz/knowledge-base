@@ -16,7 +16,7 @@ const Home = () => {
   };
 
   const [file, setFile] = useState(null);
-  const [showDocumentViewer, setShowDocumentViewer] = useState(true);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
 
   const toggleDocumentViewer = () => {
     setShowDocumentViewer(!showDocumentViewer);

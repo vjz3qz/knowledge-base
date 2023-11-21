@@ -12,8 +12,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   // State Declarations
-  const [messages, setMessages] = useState([
-    { text: "Hello I'm Tracy, how can I help?", isUserMessage: false },]);
+  const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);

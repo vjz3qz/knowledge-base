@@ -10,7 +10,7 @@ function FeatureSection() {
       <>
         <Logo className="logo-large" />
         <p>How can I help you today?</p>
-        <div className="features-container">
+        {/* <div className="features-container">
           <FeatureBox
             icon={<FaRegLightbulb />}
             title="Examples"
@@ -26,7 +26,7 @@ function FeatureSection() {
             title="Limitations"
             description="May occasionally generate incorrect information."
           />
-        </div>
+        </div> */}
       </>
     );
   };
