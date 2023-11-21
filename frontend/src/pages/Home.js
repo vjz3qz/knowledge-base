@@ -1,19 +1,27 @@
 // Home.js
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Home.css';
 import FeatureBox from '../components/FeatureBox';
 import ExampleBox from '../components/ExampleBox';
 import Header from '../components/Header';
 import ChatBubble from '../components/ChatBubble';
 import FileMessage from '../components/FileMessage';
+import SidePanel from '../components/SidePanel';
 import IframeMessage from '../components/IframeMessage';
 
 import { FaRegLightbulb } from 'react-icons/fa'; // Example icon for "Examples"
 import { MdOutlineRememberMe } from 'react-icons/md'; // Example icon for "Capabilities"
 import { AiOutlineExclamationCircle } from 'react-icons/ai'; // Example icon for "Limitations"
 
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { pdfjs } from "react-pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
+
 const Home = () => {
+
   const user = {
     name: 'Rahul Kumar',
     avatar: 'path-to-avatar-image.png'
@@ -21,19 +29,13 @@ const Home = () => {
 
    const [messages, setMessages] = useState([
      { text: "Hello I'm Tracy, how can I help?", isUserMessage: false },
-     {
-      type: 'iframe',
-      src: 'https://www.eecs70.org/assets/pdf/notes/n2.pdf', // URL of the file to be displayed in the iframe
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isUserMessage: true,
-    }
   ]);
 
   const [showChat, setShowChat] = useState(false); // State to manage whether chat is shown
 
   // Event handler for the Answer Question button
   const handleAnswerQuestion = () => {
-    setShowChat(true); // Set the chat to be shown
+    setShowChat(true);
   };
 
   const renderChatBubbles = () => {
@@ -92,6 +94,7 @@ const Home = () => {
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (file) => {
+
     const newFileMessage = {
       type: 'file',
       fileName: file.name,
@@ -130,6 +133,17 @@ const Home = () => {
     };
   setMessages(prevMessages => [...prevMessages, newIframeMessage]);
   };
+
+
+  const { id } = useParams();
+
+  const [fileUrl, setFileUrl] = useState("");
+  const [metadata, setMetadata] = useState({});
+
+
+
+
+
   return (
     <div className={`app-container ${showChat ? 'chat-active' : ''}`}>
       <Header user={user} />
@@ -170,6 +184,8 @@ const Home = () => {
         {/* This will conditionally render the chat bubbles */}
         
       </main>
+      {showSidePanel && <SidePanel onClose={() => setShowSidePanel(false)} />}
+
       <input
           type="file"
           ref={fileInputRef}
