@@ -46,7 +46,6 @@ const Home = () => {
         />
         {showDocumentViewer && <DocumentViewer id={id} />}
         {showDocumentSearch && searchTerm && <DocumentSearch  searchTerm={searchTerm} setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer} />}
-        
       </div>
     </div>
   );
