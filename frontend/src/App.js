@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './pages/Home';
-
+import React from 'react';
+import Chat from './pages/Chat';
 
 function App() {
   return (
-    <Router>
-        <div className="content-wrapper">
-          <Routes>
-            <Route path="/" element={<Home />}/>
-          </Routes>
-        </div>
-    </Router>
+    <div className="content-wrapper">
+      <Chat />
+    </div>
   );
 }
 
