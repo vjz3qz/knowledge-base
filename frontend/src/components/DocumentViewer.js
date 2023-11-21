@@ -1,6 +1,7 @@
 import Summary from "../subcomponents/Summary";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "../styles/DocumentViewer.css";
 
 function DocumentViewer({ id }) {
   const [fileUrl, setFileUrl] = useState("");
@@ -42,14 +43,13 @@ function DocumentViewer({ id }) {
 
 
   return (
-    <div>
+    <div className='sidebar'>
         <div className="holder"></div>
         {/* <iframe
             title="document"
             src="https://www.eecs70.org/assets/pdf/notes/n1.pdf"
             frameBorder="0"
-            width="100%"
-            height="80%"
+
           ></iframe> */}
         
         <iframe width="100%" height="50%" src={fileUrl} title="YouTube video player" frameborder="0" allow="accelerometer;"></iframe>

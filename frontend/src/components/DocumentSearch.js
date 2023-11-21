@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import DocumentCard from "../subcomponents/DocumentCard";
+import "../styles/DocumentSearch.css";
 
 const DocumentSearch = ({ searchTerm, setFileAndOpenDocumentViewer }) => {
   const [results, setResults] = useState([]);

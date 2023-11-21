@@ -126,6 +126,10 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
             ) : (
               <ChatBubble
                 key={index}
+                timestamp={new Date().toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
                 message={message.text}
                 isUserMessage={message.isUserMessage}
               />
