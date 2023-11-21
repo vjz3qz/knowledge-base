@@ -15,14 +15,12 @@ from PIL import Image
 from openai import OpenAI
 import numpy as np
 import cv2
-import base64
+import base64   
+import whisper
+import torch
+
 
 client = OpenAI()
-
-# Path to the LLaVA models. Consider environment variables for production settings.
-MODEL_DIR = "/Users/varunpasupuleti/Documents/TraceAI/knowledge-base/backend/models"
-LLAVA_BINARY_PATH = '/Users/varunpasupuleti/Desktop/llama.cpp/llava'
-
 
 
 
@@ -31,6 +29,76 @@ def upload_file_handler(uploaded_file, llm, content_type, file_type):
         return text_file_handler(uploaded_file, llm, content_type)
     elif file_type == 'diagram':
         return diagram_file_handler(uploaded_file, llm, content_type)
+    elif file_type == 'video':
+        return video_file_handler(uploaded_file, llm, content_type)
+    else:
+        return 400 # invalid file type
+
+def video_file_handler(video_file, llm, content_type):
+    if content_type not in ['video/mp4']:
+        return 400
+    # call whisper to get transcript and timestamps
+    transcript, texts, time_stamps = whisper_transcribe(video_file)
+    # generate unique id with Document Level Hash
+    file_id = generate_unique_id(transcript, 'text')
+    # add transcript, id, and timestamps to chroma
+    add_text_to_chroma(texts, file_id, time_stamps)
+    # generate summary
+    summary = summarize_document(texts, llm)
+    # add file to S3 bucket: trace-ai-knowledge-base? or trace-ai-knowledge-base-videos?
+    metadata = {
+        "name": video_file.filename,
+        "summary": summary,
+        "content_type": content_type,
+        "file_type": "video"
+    }
+    upload_document_to_s3(video_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-videos')
+    # FOR RAG
+    # Create an in-memory bytes buffer
+    text_file = BytesIO(transcript.encode('utf-8'))
+    metadata = {
+        "name": video_file.filename,
+        "summary": summary,
+        "content_type": "text/plain",
+        "file_type": "text"
+    }
+    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-knowledge-base-documents')
+    return 200
+
+    
+    #https://platform.openai.com/docs/guides/speech-to-text
+    # post process with gpt4 if needed for spelling errors
+    # pydub to segment if needed in the future
+
+    # then, update RAG handler to handle video files
+    # then, update frontend to handle video files and RAG videos
+
+
+def whisper_transcribe(video_file):
+    model = whisper.load_model("base")
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_file:
+        tmp_file.write(video_file.read())
+        temp_file_path = tmp_file.name
+    try:
+        numpy_audio = whisper.load_audio(temp_file_path)
+        result = model.transcribe(numpy_audio, fp16=False)  # Set fp16 to False since we're using CPU
+
+        # print the recognized text
+        transcript = result['text']
+        segments = result['segments']
+        # language = result['language']
+
+        # TODO transform time stamps
+        time_stamps = [(segment['start'], segment['end']) for segment in segments]
+        texts = [segment['text'] for segment in segments]
+        return transcript, texts, time_stamps
+    except Exception as e:
+        print(e)
+        return None, None
+    
+    
+
+
 
 
 # 'text':
