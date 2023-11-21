@@ -2,7 +2,7 @@ import Summary from "../subcomponents/Summary";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function DocumentViewer({ id}) {
+function DocumentViewer({ id }) {
   const [fileUrl, setFileUrl] = useState("");
   const [metadata, setMetadata] = useState({});
 

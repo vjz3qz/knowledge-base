@@ -10,7 +10,7 @@ import FeatureSection from "../subcomponents/FeatureSection";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
+const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm }) => {
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -20,6 +20,8 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   const [highlightExtractDataButton, setHighlightExtractDataButton] = useState(false);
   const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] = useState(false);
 
+  // SUPPORT QUESTION ANSWER ONLY WITHOUT DOCS
+  //const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(false);
 
   // Ref Declarations
   const fileInputRef = useRef(null);
@@ -58,6 +60,16 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
       setMessages([...messages, newMessage]);
+      // TODO send message to backend
+      // TODO conditionally render the right thing for each button
+      if (highlightAnswerQuestionButton) {
+        setSearchTerm(inputValue);
+        setHighlightAnswerQuestionButton(false);
+      } else if (highlightExtractDataButton) {
+        setHighlightExtractDataButton(false);
+      } else if (highlightIncidentCaptureButton) {
+        setHighlightIncidentCaptureButton(false);
+      }
       setInputValue("");
       setShowChat(true);
     }
@@ -97,7 +109,7 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
     const file = event.target.files[0];
     if (file) {
       handleFileUpload(file);
-      setFileAndToggleDocumentViewer(file);
+      setFileAndOpenDocumentViewer(file);
     }
   };
 
@@ -105,7 +117,7 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   const renderChatBubbles = () => {
     return (
       showChat && (
-        <div className={`chat-container ${showDocumentViewer ? 'full-width' : 'half-width'}`}>
+        <div className={`chat-container ${showSidePanel ? 'full-width' : 'half-width'}`}>
           {messages.map((message, index) =>
             message.type === "file" ? (
               <FileMessage key={index} {...message} />
@@ -139,7 +151,7 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
         style={{ display: "none" }}
       />
 
-      <div className={`bottom-container ${showDocumentViewer ? 'full-width' : 'half-width'}`}>
+      <div className={`bottom-container ${showSidePanel ? 'full-width' : 'half-width'}`}>
         <div className="action-buttons">
           <ActionButton
             onClick={handleUploadClick}
