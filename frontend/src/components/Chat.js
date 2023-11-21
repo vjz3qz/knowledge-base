@@ -4,31 +4,22 @@ import React, { useState, useRef } from "react";
 import ChatBubble from "../ui/ChatBubble";
 import FileMessage from "../ui/FileMessage";
 import IframeMessage from "../ui/IframeMessage";
-import FeatureBox from "../ui/FeatureBox";
 import ActionButton from '../ui/ActionButton'; // Import the new ActionButton component
-
-import { ReactComponent as Logo } from "../assets/logo.svg";
-import { FaRegLightbulb } from "react-icons/fa";
-import { MdOutlineRememberMe } from "react-icons/md";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
+import ChatInputBar from "../subcomponents/ChatInputBar";
+import FeatureSection from "../subcomponents/FeatureSection";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user }) => {
+const Chat = ({ user, setFileAndToggleSidePanel }) => {
   // State Declarations
-  const [messages, setMessages] = useState([
-    { text: "Hello I'm Tracy, how can I help?", isUserMessage: false },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [showSidePanel, setShowSidePanel] = useState(false);
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
-  const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] =
-    useState(false);
-  const [highlightExtractDataButton, setHighlightExtractDataButton] =
-    useState(false);
-  const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] =
-    useState(false);
+  const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(false);
+  const [highlightExtractDataButton, setHighlightExtractDataButton] = useState(false);
+  const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] = useState(false);
+
 
   // Ref Declarations
   const fileInputRef = useRef(null);
@@ -99,11 +90,15 @@ const Chat = ({ user }) => {
     };
     setMessages((prevMessages) => [...prevMessages, newFileMessage]);
     setHighlightUploadButton(false);
+    setShowChat(true);
   };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) handleFileUpload(file);
+    if (file) {
+      handleFileUpload(file);
+      setFileAndToggleSidePanel(file);
+    }
   };
 
   // Render Functions
@@ -131,32 +126,10 @@ const Chat = ({ user }) => {
 
   // Main Render
   return (
-    <div className={`app-container ${showChat ? "chat-active" : ""}`}>
+    <div>
       <main className={`main-content ${showChat ? "show-chat" : ""}`}>
-        {!showChat && (
-          <>
-            <Logo className="logo-large" />
-            <p>How can I help you today?</p>
-            <div className="features-container">
-              <FeatureBox
-                icon={<FaRegLightbulb />}
-                title="Examples"
-                description="Can interpret the P&ID from Highline Industries."
-              />
-              <FeatureBox
-                icon={<MdOutlineRememberMe />}
-                title="Capabilities"
-                description="Remembers what user said earlier in the conversation."
-              />
-              <FeatureBox
-                icon={<AiOutlineExclamationCircle />}
-                title="Limitations"
-                description="May occasionally generate incorrect information."
-              />
-            </div>
-          </>
-        )}
-        {renderChatBubbles()}
+        {!showChat && <FeatureSection />}
+        {showChat && renderChatBubbles()}
       </main>
 
       <input
@@ -189,18 +162,12 @@ const Chat = ({ user }) => {
             label="Incident Capture"
           />
         </div>
-        <div className="chat-bar">
-          <input
-            type="text"
-            className="chat-input"
-            placeholder="Send a message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <button className="chat-send-button" onClick={handleSendMessage}>
-            Send
-          </button>
-        </div>
+        <ChatInputBar
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          handleSendMessage={handleSendMessage}
+        />
+        
       </div>
     </div>
   );
