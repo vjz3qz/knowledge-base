@@ -5,6 +5,8 @@ import ChatBubble from "../ui/ChatBubble";
 import FileMessage from "../ui/FileMessage";
 import IframeMessage from "../ui/IframeMessage";
 import FeatureBox from "../ui/FeatureBox";
+import ActionButton from '../ui/ActionButton'; // Import the new ActionButton component
+
 import { ReactComponent as Logo } from "../assets/logo.svg";
 import { FaRegLightbulb } from "react-icons/fa";
 import { MdOutlineRememberMe } from "react-icons/md";
@@ -166,46 +168,26 @@ const Chat = ({ user }) => {
 
       <div className="bottom-container">
         <div className="action-buttons">
-          <button
-            className={`${
-              highlightUploadButton
-                ? "action-button-black"
-                : "action-button-white"
-            }`}
+          <ActionButton
             onClick={handleUploadClick}
-          >
-            Upload
-          </button>
-          <button 
-            className={`${
-              highlightAnswerQuestionButton
-                ? "action-button-black"
-                : "action-button-white"
-            }`} 
+            highlight={highlightUploadButton}
+            label="Upload"
+          />
+          <ActionButton
             onClick={handleAnswerQuestionClick}
-            >
-            Answer Question
-          </button>
-          <button 
-            className={`${
-              highlightExtractDataButton
-                ? "action-button-black"
-                : "action-button-white"
-            }`} 
+            highlight={highlightAnswerQuestionButton}
+            label="Answer Question"
+          />
+          <ActionButton
             onClick={handleExtractDataClick}
-            >
-            Extract Data
-          </button>
-          <button
-            className={`${
-              highlightIncidentCaptureButton
-                ? "action-button-black"
-                : "action-button-white"
-            }`}
+            highlight={highlightExtractDataButton}
+            label="Extract Data"
+          />
+          <ActionButton
             onClick={handleIncidentCaptureClick}
-          >
-            Incident Capture
-          </button>
+            highlight={highlightIncidentCaptureButton}
+            label="Incident Capture"
+          />
         </div>
         <div className="chat-bar">
           <input
