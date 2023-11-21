@@ -10,7 +10,7 @@ import FeatureSection from "../subcomponents/FeatureSection";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileAndToggleSidePanel }) => {
+const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -97,7 +97,7 @@ const Chat = ({ user, setFileAndToggleSidePanel }) => {
     const file = event.target.files[0];
     if (file) {
       handleFileUpload(file);
-      setFileAndToggleSidePanel(file);
+      setFileAndToggleDocumentViewer(file);
     }
   };
 
@@ -126,7 +126,7 @@ const Chat = ({ user, setFileAndToggleSidePanel }) => {
 
   // Main Render
   return (
-    <div>
+    <div className="chat-component">
       <main className={`main-content ${showChat ? "show-chat" : ""}`}>
         {!showChat && <FeatureSection />}
         {showChat && renderChatBubbles()}
@@ -139,7 +139,7 @@ const Chat = ({ user, setFileAndToggleSidePanel }) => {
         style={{ display: "none" }}
       />
 
-      <div className="bottom-container">
+      <div className={`bottom-container ${showDocumentViewer ? 'full-width' : 'half-width'}`}>
         <div className="action-buttons">
           <ActionButton
             onClick={handleUploadClick}

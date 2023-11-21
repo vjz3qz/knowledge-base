@@ -4,14 +4,8 @@
   height: 100vh;
 }
 
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 90px;
-  text-align: center;
-}
+
+
 
 .features-container {
   display: flex;
@@ -42,18 +36,27 @@
 
 /* Style for the container of the action buttons and chat bar */
 .bottom-container {
-  position: fixed;
+  /* width: 100%;  Ensure it spans the width of the chat component */
+  /* width: 50%; */
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%);
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: left;
-  width: 50%;
   padding-top: 50px;
   z-index: 1000;
 }
+
+.bottom-container.full-width {
+  width: 100%;
+}
+
+.bottom-container.half-width {
+  width: 50%;
+  transform: translateX(50%);
+}
+
 
 /* Style for action buttons */
 .action-buttons {
@@ -130,20 +133,7 @@
   }
 }
 
-.chat-active .main-content {
-  height: 100%; /* Adjust height as necessary */
-  overflow-y: auto; /* Make it scrollable */
-}
 
-.main-content.show-chat {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center children horizontally */
-  justify-content: flex-start; /* Align children to the top */
-  padding: 20px;
-  gap: 10px;
-  min-height: 0; /* New addition: ensure that flex children are allowed to shrink if needed */
-}
 
 .chat-container {
   display: flex;
@@ -156,7 +146,6 @@
   overflow-y: auto;
   position: relative;
   margin-bottom: 100px; /* Provide enough space for the input area */
-  height: calc(100vh - 250px);
 }
 
 .chat-container::-webkit-scrollbar {
@@ -196,4 +185,36 @@
   /* ... existing styles ... */
   width: 400px; /* Set the width of your side panel */
   /* Add other styles for the side panel */
+}
+
+
+/* Styles for the container that includes both the DocumentViewer and Chat */
+.main-container {
+  display: flex;
+  height: 100vh; /* Adjust if needed */
+  justify-content: space-between;
+  gap: 20px; /* Adjust the space between the two components */
+}
+
+.main-container > * {
+  flex: 1; /* This makes both children (DocumentViewer and Chat) take equal width */
+  /* You can adjust this as needed, e.g., flex: 2 for one and flex: 1 for the other */
+}
+
+/* Assuming .chat-component wraps around .main-content and .bottom-container */
+.chat-component {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 30px); /* Subtract header height from 100vh */
+  width: 100%; /* Full width */
+  justify-content: flex-end; /* Align children to the bottom */
+}
+
+/* This should be the chat messages container, allowing it to scroll */
+.main-content {
+  overflow-y: auto; /* To allow scrolling for chat messages */
+  flex-grow: 1; /* Grow to use all available space */
+  align-items: center;
+  margin-top: 80px; /* Adjust if you have a header */
+  text-align: center;
 }

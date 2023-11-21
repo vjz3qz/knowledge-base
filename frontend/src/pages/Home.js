@@ -1,62 +1,47 @@
 // Home.js
 
-import React, { useState, useRef, useEffect } from 'react';
-import '../styles/Home.css';
-import FeatureBox from '../ui/FeatureBox';
-import ExampleBox from '../ui/ExampleBox';
-import Header from '../ui/Header';
-import ChatBubble from '../ui/ChatBubble';
-import FileMessage from '../ui/FileMessage';
-import SidePanel from '../ui/SidePanel';
-import IframeMessage from '../ui/IframeMessage';
-
-import Chat from '../components/Chat';
-import { FaRegLightbulb } from 'react-icons/fa'; // Example icon for "Examples"
-import { MdOutlineRememberMe } from 'react-icons/md'; // Example icon for "Capabilities"
-import { AiOutlineExclamationCircle } from 'react-icons/ai'; // Example icon for "Limitations"
+import React, { useState } from "react";
+import "../styles/Home.css";
+import Header from "../ui/Header";
+import Chat from "../components/Chat";
+import DocumentViewer from "../components/DocumentViewer";
 
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { pdfjs } from "react-pdf";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-
-
 
 const Home = () => {
-
   const user = {
-    name: 'Rahul Kumar',
-    avatar: 'path-to-avatar-image.png'
+    name: "Rahul Kumar",
+    avatar: "path-to-avatar-image.png",
   };
-
-
 
   const [file, setFile] = useState(null);
-  const [showSidePanel, setShowSidePanel] = useState(false);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(true);
 
-  const toggleSidePanel = () => {
-    setShowSidePanel(!showSidePanel);
+  const toggleDocumentViewer = () => {
+    setShowDocumentViewer(!showDocumentViewer);
   };
 
-  const setFileAndToggleSidePanel = (file) => {
-    toggleSidePanel();
+  const setFileAndToggleDocumentViewer = (file) => {
+    toggleDocumentViewer();
     setFile(file);
-  }
+  };
 
   const { id } = useParams();
-
-  const [fileUrl, setFileUrl] = useState("");
-  const [metadata, setMetadata] = useState({});
-
-
-
-
+  // TODO send file to backend, get back id, pass to document viewer
 
   return (
     <div className={`app-container`}>
       <Header user={user} />
-      <Chat user={user} setFileAndToggleSidePanel={setFileAndToggleSidePanel} />
+      <div className="main-container">
+        <Chat
+          user={user}
+          setFileAndToggleDocumentViewer={setFileAndToggleDocumentViewer}
+          showDocumentViewer={showDocumentViewer}
+        />
+        {showDocumentViewer && <DocumentViewer id={id} />}
+        
+      </div>
     </div>
   );
 };
