@@ -12,7 +12,7 @@ const DocumentSearch = ({ searchTerm, setFileAndOpenDocumentViewer }) => {
       query: searchTerm,
     };
     // const result = await axios.post(
-    //   "http://localhost:5001/api/v2/search/1",
+    //   "http://localhost:5001/api/v2/search/3",
     //   payload
     // );
 
@@ -39,7 +39,6 @@ const DocumentSearch = ({ searchTerm, setFileAndOpenDocumentViewer }) => {
               url: "http://example.com/images/aurora_borealis_norway.jpg",
             },
           },
-          // ... more sources can be added in similar structure
         },
       },
     };

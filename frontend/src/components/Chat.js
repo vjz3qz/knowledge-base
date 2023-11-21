@@ -10,7 +10,8 @@ import FeatureSection from "../subcomponents/FeatureSection";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm }) => {
+const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTermAndOpenDocumentSearch }) => {
+
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -63,7 +64,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
       // TODO send message to backend
       // TODO conditionally render the right thing for each button
       if (highlightAnswerQuestionButton) {
-        setSearchTerm(inputValue);
+        setSearchTermAndOpenDocumentSearch(inputValue);
         setHighlightAnswerQuestionButton(false);
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
@@ -167,7 +168,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
             highlight={highlightAnswerQuestionButton}
             label="Answer Question"
           />
-          <ActionButton
+          {/* <ActionButton
             onClick={handleExtractDataClick}
             highlight={highlightExtractDataButton}
             label="Extract Data"
@@ -176,7 +177,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
             onClick={handleIncidentCaptureClick}
             highlight={highlightIncidentCaptureButton}
             label="Incident Capture"
-          />
+          /> */}
         </div>
         <ChatInputBar
           inputValue={inputValue}

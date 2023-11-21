@@ -15,10 +15,9 @@ const Home = () => {
     name: "Rahul Kumar",
     avatar: "path-to-avatar-image.png",
   };
-
+  // TODO USE FILE URL, NOT FILE, USE INSTEAD OF DOCUMENT VIEWER
   const [file, setFile] = useState(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
-  const [showDocumentSearch, setShowDocumentSearch] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   const toggleDocumentViewer = () => {
@@ -28,12 +27,17 @@ const Home = () => {
   const setFileAndOpenDocumentViewer = (file) => {
     setFile(file);
     setShowDocumentViewer(true);
-    setShowDocumentSearch(false);
+    setSearchTerm("");
   };
+
+  const setSearchTermAndOpenDocumentSearch = (searchTerm) => {
+    setSearchTerm(searchTerm);
+    setShowDocumentViewer(false);
+    setFile(null);
+  }
 
   const { id } = useParams();
   // TODO send file to backend, get back id, pass to document viewer
-
   return (
     <div className={`app-container`}>
       <Header user={user} />
@@ -41,11 +45,11 @@ const Home = () => {
         <Chat
           user={user}
           setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer}
-          showSidePanel={showDocumentViewer || showDocumentSearch}
-          setSearchTerm={setSearchTerm}
+          showSidePanel={showDocumentViewer || searchTerm } 
+          setSearchTermAndOpenDocumentSearch={setSearchTermAndOpenDocumentSearch}
         />
         {showDocumentViewer && <DocumentViewer id={id} />}
-        {showDocumentSearch && searchTerm && <DocumentSearch  searchTerm={searchTerm} setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer} />}
+        {searchTerm && <DocumentSearch  searchTerm={searchTerm} setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer} />}
       </div>
     </div>
   );
