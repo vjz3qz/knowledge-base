@@ -23,7 +23,7 @@ function DocumentViewer({ id }) {
     try {
     //   fetchFile();
     //   fetchMetadata();
-    setFileUrl("https://www.youtube.com/watch?v=1towAoXOWLg");
+    setFileUrl("https://www.clickdimensions.com/links/TestPDFfile.pdf");
     setMetadata({
         "file_name": "sample.pdf",
         "file_type": "text",
@@ -52,7 +52,7 @@ function DocumentViewer({ id }) {
             height="80%"
           ></iframe> */}
         
-        <iframe width="100%" height="50%" src="https://www.youtube.com/embed/1towAoXOWLg?si=u7D1mI6295DJBIpo" title="YouTube video player" frameborder="0" allow="accelerometer;"></iframe>
+        <iframe width="100%" height="50%" src={fileUrl} title="YouTube video player" frameborder="0" allow="accelerometer;"></iframe>
         <Summary id={id} metadata={metadata} />
     </div>
   );
