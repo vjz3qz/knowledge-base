@@ -36,8 +36,6 @@
 
 /* Style for the container of the action buttons and chat bar */
 .bottom-container {
-  /* width: 100%;  Ensure it spans the width of the chat component */
-  /* width: 50%; */
   bottom: 0;
   left: 50%;
   padding: 20px;
@@ -139,13 +137,19 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* Align to the left for the default case (bot messages) */
-  width: 100%;
-  max-width: 40%;
   margin: 0 auto;
   padding: 10px;
   overflow-y: auto;
   position: relative;
   margin-bottom: 100px; /* Provide enough space for the input area */
+}
+
+.chat-container.full-width {
+  width: 90%;
+}
+
+.chat-container.half-width {
+  width: 50%;
 }
 
 .chat-container::-webkit-scrollbar {

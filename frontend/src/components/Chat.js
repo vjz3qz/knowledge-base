@@ -12,7 +12,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   // State Declarations
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { text: "Hello I'm Tracy, how can I help?", isUserMessage: false },]);
   const [showChat, setShowChat] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
@@ -105,7 +106,7 @@ const Chat = ({ user, setFileAndToggleDocumentViewer, showDocumentViewer }) => {
   const renderChatBubbles = () => {
     return (
       showChat && (
-        <div className="chat-container">
+        <div className={`chat-container ${showDocumentViewer ? 'full-width' : 'half-width'}`}>
           {messages.map((message, index) =>
             message.type === "file" ? (
               <FileMessage key={index} {...message} />

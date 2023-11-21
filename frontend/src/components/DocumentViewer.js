@@ -42,20 +42,16 @@ function DocumentViewer({ id}) {
 
 
   return (
-    <div className="document-viewer">
-      <div className="document-panel">
-        <div className="document-header">Document</div>
-        <div className="document-content">
-          <iframe
+    <div>
+
+        <iframe
             title="document"
             src={fileUrl}
             frameBorder="0"
             width="100%"
             height="100%"
           ></iframe>
-        </div>
-      </div>
-      <Summary id={id} metadata={metadata} />
+      {/* <Summary id={id} metadata={metadata} /> */}
     </div>
   );
 }
