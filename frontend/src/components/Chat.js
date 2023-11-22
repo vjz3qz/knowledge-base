@@ -7,10 +7,11 @@ import IframeMessage from "../ui/IframeMessage";
 import ActionButton from '../ui/ActionButton'; // Import the new ActionButton component
 import ChatInputBar from "../subcomponents/ChatInputBar";
 import FeatureSection from "../subcomponents/FeatureSection";
+import getSearchResults from "../utils/GetSearchResults";
 import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTermAndOpenDocumentSearch }) => {
+const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setResultsAndOpenDocumentSearch }) => {
 
   // State Declarations
   const [messages, setMessages] = useState([]);
@@ -64,7 +65,10 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
       // TODO send message to backend
       // TODO conditionally render the right thing for each button
       if (highlightAnswerQuestionButton) {
-        setSearchTermAndOpenDocumentSearch(inputValue);
+
+        // TODO call doc search here, pass result to doc search cards
+        const results = getSearchResults(inputValue);
+        setResultsAndOpenDocumentSearch(results);
         setHighlightAnswerQuestionButton(false);
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
@@ -95,6 +99,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
       type: "file",
       fileName: file.name,
       fileSize: (file.size / 1024 / 1024).toFixed(2),
+      fileType: file.type, // Accessing the MIME type of the file
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -104,6 +109,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setSearchTerm
     setMessages((prevMessages) => [...prevMessages, newFileMessage]);
     setHighlightUploadButton(false);
     setShowChat(true);
+    // TODO send file to backend
   };
 
   const handleFileChange = (event) => {

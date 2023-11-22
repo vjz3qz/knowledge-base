@@ -18,7 +18,7 @@ const Home = () => {
   // TODO USE FILE URL, NOT FILE, USE INSTEAD OF DOCUMENT VIEWER
   const [file, setFile] = useState(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState([]);
 
   const toggleDocumentViewer = () => {
     setShowDocumentViewer(!showDocumentViewer);
@@ -27,11 +27,11 @@ const Home = () => {
   const setFileAndOpenDocumentViewer = (file) => {
     setFile(file);
     setShowDocumentViewer(true);
-    setSearchTerm("");
+    setResults([]);
   };
 
-  const setSearchTermAndOpenDocumentSearch = (searchTerm) => {
-    setSearchTerm(searchTerm);
+  const setResultsAndOpenDocumentSearch = (results) => {
+    setResults(results);
     setShowDocumentViewer(false);
     setFile(null);
   }
@@ -45,11 +45,11 @@ const Home = () => {
         <Chat
           user={user}
           setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer}
-          showSidePanel={showDocumentViewer || searchTerm } 
-          setSearchTermAndOpenDocumentSearch={setSearchTermAndOpenDocumentSearch}
+          showSidePanel={showDocumentViewer || results.length } 
+          setResultsAndOpenDocumentSearch={setResultsAndOpenDocumentSearch}
         />
         {showDocumentViewer && <DocumentViewer id={id} />}
-        {searchTerm && <DocumentSearch  searchTerm={searchTerm} setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer} />}
+        {results.length && <DocumentSearch results={results} setFileAndOpenDocumentViewer={setFileAndOpenDocumentViewer} />}
       </div>
     </div>
   );
