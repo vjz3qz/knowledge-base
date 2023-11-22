@@ -5,3 +5,34 @@
 p {
     margin: 10px;
 }
+
+/* Styling for the entire document panel */
+.document-panel {
+    background-color: #fff; /* Light gray background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 20px; /* Padding around the content */
+    margin: 20px; /* Margin around the panel */
+    margin-top: 0px;
+}
+
+/* Styling for the header */
+.document-header {
+    font-size: 1.5em; /* Larger font size for the header */
+    color: #333; /* Dark text for better readability */
+    margin-bottom: 15px; /* More space below the header */
+    border-bottom: 2px solid #ddd; /* A line below the header for separation */
+    padding-bottom: 10px; /* Padding below the header text */
+}
+
+/* Styling for the content area */
+.document-content {
+    font-size: 1em; /* Regular font size for content */
+    color: #666; /* Slightly lighter text color for the content */
+}
+
+/* Styling for paragraphs within the content */
+.document-content p {
+    line-height: 1.6; /* Increased line height for readability */
+    margin: 10px 0; /* Margin around paragraphs */
+}
