@@ -172,7 +172,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
 
 
 
-
+  // TODO fix upload, don't view document immediately after upload, or get it somehow
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
