@@ -24,7 +24,7 @@ import "../styles/Summary.css";
   
     return (
       <div className="document-panel">
-        <div className="document-header">Summary</div>
+        {/* <div className="document-header">Summary</div> */}
         <div className="document-content">
           <p>{summary}</p>
           {/* <p>{formattedClassCounts}</p> */}

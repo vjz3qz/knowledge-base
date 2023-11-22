@@ -8,13 +8,26 @@ p {
 
 /* Styling for the entire document panel */
 .document-panel {
-    background-color: #fff; /* Light gray background */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 20px; /* Padding around the content */
-    margin: 20px; /* Margin around the panel */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 10px;
     margin-top: 0px;
+    height: 170px; /* Fixed height */
+    overflow: hidden; /* Hide overflow */
 }
+
+/* Styling for the content area */
+.document-content {
+    font-size: 1em;
+    color: #666;
+    overflow-y: auto; /* Make only vertical overflow scrollable */
+    max-height: 100%; /* Maximum height to fit the parent container */
+    padding-right: 10px; /* Optional: to avoid text getting too close to the scrollbar */
+}
+
+/* The rest of your CSS remains unchanged */
 
 /* Styling for the header */
 .document-header {
@@ -25,11 +38,6 @@ p {
     padding-bottom: 10px; /* Padding below the header text */
 }
 
-/* Styling for the content area */
-.document-content {
-    font-size: 1em; /* Regular font size for content */
-    color: #666; /* Slightly lighter text color for the content */
-}
 
 /* Styling for paragraphs within the content */
 .document-content p {
