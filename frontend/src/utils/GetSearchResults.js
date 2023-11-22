@@ -9,6 +9,7 @@ async function getSearchResults(searchTerm) {
 
   const result = {
     data: {
+      answer: "The impact of climate change on marine life is significant.",
       sources: {
         source1: {
           metadata: {
@@ -49,7 +50,8 @@ async function getSearchResults(searchTerm) {
       url: source.url,
     });
   }
-  return results;
+  const answer = result.data.answer;
+  return [answer, results];
 }
 
 export default getSearchResults;
