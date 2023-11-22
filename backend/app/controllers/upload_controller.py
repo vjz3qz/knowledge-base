@@ -32,7 +32,7 @@ def upload_file_handler(uploaded_file, llm, content_type, file_type):
     elif file_type == 'video':
         return video_file_handler(uploaded_file, llm, content_type)
     else:
-        return 400 # invalid file type
+        return None, 400 # invalid file type
 
 def video_file_handler(video_file, llm, content_type):
     if content_type not in ['video/mp4']:
@@ -52,7 +52,7 @@ def video_file_handler(video_file, llm, content_type):
         "content_type": content_type,
         "file_type": "video"
     }
-    upload_document_to_s3(video_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-videos')
+    upload_document_to_s3(video_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
     # FOR RAG
     # Create an in-memory bytes buffer
     text_file = BytesIO(transcript.encode('utf-8'))
@@ -62,9 +62,8 @@ def video_file_handler(video_file, llm, content_type):
         "content_type": "text/plain",
         "file_type": "text"
     }
-    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-knowledge-base-documents')
-    return 200
-
+    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-knowledge-base-transcripts')
+    return file_id, 200
     
     #https://platform.openai.com/docs/guides/speech-to-text
     # post process with gpt4 if needed for spelling errors
@@ -134,7 +133,7 @@ def text_file_handler(text_file, llm, content_type):
         "file_type": "text"
     }
     upload_document_to_s3(text_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
-    return 200
+    return file_id, 200
 
 def extract_txt_text(txt_file):
     # Read the text directly from the text file
@@ -250,7 +249,7 @@ def diagram_file_handler(diagram_file, llm, content_type):
     # upload processed image to S3: trace-ai-images/processed-images
     upload_document_to_s3(img_byte_arr, file_id, content_type=content_type, bucket='trace-ai-images', prefix='processed-images')
     print(image_summary)
-    return 200
+    return file_id, 200
 
 
 
