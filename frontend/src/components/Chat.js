@@ -9,9 +9,10 @@ import ChatInputBar from "../subcomponents/ChatInputBar";
 import FeatureSection from "../subcomponents/FeatureSection";
 import getSearchResults from "../utils/GetSearchResults";
 import { pdfjs } from "react-pdf";
+import axios from "axios";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setResultsAndOpenDocumentSearch }) => {
+const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsAndOpenDocumentSearch }) => {
 
   // State Declarations
   const [messages, setMessages] = useState([]);
@@ -58,16 +59,18 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setResultsAnd
   };
 
   // Message Handling Functions
-  const handleSendMessage = () => {
+  async function handleSendMessage() {
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
-      setMessages([...messages, newMessage]);
+      
       // TODO send message to backend
       // TODO conditionally render the right thing for each button
       if (highlightAnswerQuestionButton) {
 
         // TODO call doc search here, pass result to doc search cards
-        const results = getSearchResults(inputValue);
+        const [answer, results] = await getSearchResults(inputValue);
+        const newAnswerMessage = { text: answer, isUserMessage: false };
+        setMessages([...messages, newMessage, newAnswerMessage]);
         setResultsAndOpenDocumentSearch(results);
         setHighlightAnswerQuestionButton(false);
       } else if (highlightExtractDataButton) {
@@ -94,7 +97,7 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setResultsAnd
   };
 
   // File Handling Functions
-  const handleFileUpload = (file) => {
+  async function handleFileUpload(file) {
     const newFileMessage = {
       type: "file",
       fileName: file.name,
@@ -109,14 +112,74 @@ const Chat = ({ user, setFileAndOpenDocumentViewer, showSidePanel, setResultsAnd
     setMessages((prevMessages) => [...prevMessages, newFileMessage]);
     setHighlightUploadButton(false);
     setShowChat(true);
-    // TODO send file to backend
+    return await uploadAndGetFileId(file)
   };
+
+
+
+
+  const uploadAndGetFileId = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('content_type', file.type);
+    // create an array with the mime types of txt, pdf, docx
+    const fileTypes = ["text/plain", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    // create an array with the mime types of jpg, png, jpeg
+    const imageTypes = ["image/jpg", "image/png", "image/jpeg"];
+    // create an array with the mime types of mp4
+    const videoTypes = ["video/mp4"];
+    // decide what type of file it is, and set uploadType accordingly to text, image, or video
+    let uploadType = "";
+    if (fileTypes.includes(file.type)) {
+      uploadType = "text";
+    } else if (imageTypes.includes(file.type)) {
+      uploadType = "diagram";
+      // TODO support pdf diagrams
+    } else if (videoTypes.includes(file.type)) { 
+      uploadType = "video";
+    } else {
+      // if the file type is not one of the above, then it is unsupported
+      // break out of the function
+      return;
+    }
+    formData.append('file_type', uploadType);
+
+    try {
+      const response = await axios.post('http://localhost:5001/api/v2/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    
+      // Check if response includes file_id
+      if (response.status === 200 && response.data.file_id) {
+        return response.data.file_id;
+      } else {
+        // Handle the case where file_id is not present in the response
+        console.log('Upload successful, but no file ID returned.');
+        return null;
+      }
+    } catch (error) {
+      // Update error handling to include both response error or other errors
+      const errorMessage = error.response?.data?.error || error.message;
+      console.log(errorMessage);
+      return null;
+    }
+    
+  };
+
+
+
+
+
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      handleFileUpload(file);
-      setFileAndOpenDocumentViewer(file);
+      const fileId = handleFileUpload(file);
+      // TODO fetch via file id
+      setFileIdAndOpenDocumentViewer(fileId);
     }
   };
 

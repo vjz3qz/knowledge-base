@@ -2,7 +2,7 @@ import React from "react";
 import DocumentCard from "../subcomponents/DocumentCard";
 import "../styles/DocumentSearch.css";
 
-const DocumentSearch = ({ results, setFileAndOpenDocumentViewer }) => {
+const DocumentSearch = ({ results, setFileIdAndOpenDocumentViewer }) => {
 
   return (
     <div className="container">
@@ -14,7 +14,7 @@ const DocumentSearch = ({ results, setFileAndOpenDocumentViewer }) => {
               documentName={result.name}
               date={result.date}
               summary={result.summary}
-              onClick={() => setFileAndOpenDocumentViewer(result.id)}
+              onClick={() => setFileIdAndOpenDocumentViewer(result.id)}
             />
           ))}
         </div>
