@@ -41,7 +41,7 @@ def add_text_to_chroma(texts, file_id, time_stamps=None):
             print(f"Document with ID {id} already exists.")
             return
 
-    create_sources(texts, file_id, chunk_ids, time_stamps)
+    sources = create_sources(texts, file_id, chunk_ids, time_stamps)
     embed_to_chroma(texts, sources, chunk_ids)
 
 def create_chunk_ids(texts):
@@ -87,13 +87,27 @@ def search_k_in_chroma(query, k=3, chroma_db=None):
 
     qa_response = qa(query)
     source_data = {}
-    for source in qa_response['source_documents']:
-        source = source.metadata['source']
-        time_stamp =  source.metadata['time_stamp'] if 'time_stamp' in source.metadata else None
-        source_data[source] = {"url": get_url_from_s3(source), "metadata": get_metadata_from_s3(
-            source)}
-        if time_stamp:
-            source_data[source]['time_stamp'] = time_stamp
+    # for source in qa_response['source_documents']:
+    #     print(qa_response['source_documents'])
+    #     source = source.metadata['source']
+    #     time_stamp =  source.metadata['time_stamp'] if 'time_stamp' in source.metadata else None
+    #     source_data[source] = {"url": get_url_from_s3(source), "metadata": get_metadata_from_s3(
+    #         source)}
+    #     if time_stamp:
+    #         source_data[source]['time_stamp'] = time_stamp
+    for source_item in qa_response['source_documents']:
+        # Check if the source_item has a metadata attribute
+        if hasattr(source_item, 'metadata') and 'source' in source_item.metadata:
+            source_identifier = source_item.metadata['source']
+            time_stamp = source_item.metadata.get('time_stamp')
+            source_data[source_identifier] = {
+                "url": get_url_from_s3(source_identifier),
+                "metadata": get_metadata_from_s3(source_identifier)
+            }
+            if time_stamp:
+                source_data[source_identifier]['time_stamp'] = time_stamp
+        else:
+            print("Invalid source item format:", source_item)
     response = {"answer": qa_response['answer'], "sources": source_data}
     # TODO add time stamp support in frontend
     return response
