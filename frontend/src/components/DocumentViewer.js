@@ -45,14 +45,9 @@ function DocumentViewer({ id }) {
   return (
     <div className='sidebar'>
         <div className="holder"></div>
-        {/* <iframe
-            title="document"
-            src="https://www.eecs70.org/assets/pdf/notes/n1.pdf"
-            frameBorder="0"
-
-          ></iframe> */}
         
-        <iframe width="100%" height="50%" src={fileUrl} title="YouTube video player" frameborder="0" allow="accelerometer;"></iframe>
+        <iframe width="100%" height="60%" src={fileUrl} title="YouTube video player" frameBorder="0" allow="accelerometer;"
+    style={{ border: '2px solid #ddd', borderRadius: '10px' }}></iframe>
         <Summary id={id} metadata={metadata} />
     </div>
   );
