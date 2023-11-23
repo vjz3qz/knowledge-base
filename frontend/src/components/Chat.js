@@ -109,10 +109,11 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
       }),
       isUserMessage: true,
     };
-    setMessages((prevMessages) => [...prevMessages, newFileMessage]);
+    const fileId = await uploadAndGetFileId(file);
+    setMessages((prevMessages) => [...prevMessages, newFileMessage, { text: `Successfully uploaded ${file.name}.`, isUserMessage: false }]);
     setHighlightUploadButton(false);
     setShowChat(true);
-    return await uploadAndGetFileId(file)
+    return fileId
   };
 
 
@@ -179,7 +180,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
     if (file) {
       const fileId = handleFileUpload(file);
       // TODO fetch via file id
-      setFileIdAndOpenDocumentViewer(fileId);
+      //setFileIdAndOpenDocumentViewer(fileId);
     }
   };
 
