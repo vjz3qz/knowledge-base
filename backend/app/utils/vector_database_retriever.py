@@ -10,6 +10,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.llms import OpenAI
 from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.prompts import PromptTemplate
 
 try:
     os.environ['OPENAI_API_KEY']
@@ -83,8 +84,18 @@ def search_k_in_chroma(query, k=3, chroma_db=None):
             persist_directory=PERSISTENT_DIRECTORY, embedding_function=embedding)
     retriever = chroma_db.as_retriever(search_kwargs={"k": k})
     # docs = retriever.get_relevant_documents(query)
+    template = """
+    You're' an AI assistant. Find the most related document and answer based on that document. If there isn't a relevant doc, say that.
+    {summaries}
+    {question}
+    """
     qa = RetrievalQAWithSourcesChain.from_chain_type(
-        llm=OpenAI(), chain_type="stuff", retriever=retriever, return_source_documents=True)
+        llm=OpenAI(), chain_type="stuff", retriever=retriever, return_source_documents=True, chain_type_kwargs={
+        "prompt": PromptTemplate(
+            template=template,
+            input_variables=["summaries", "question"],
+        ),
+    },)
 
     qa_response = qa(query)
     source_data = {}

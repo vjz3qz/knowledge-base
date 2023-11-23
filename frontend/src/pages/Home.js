@@ -52,6 +52,7 @@ const Home = () => {
           user={user}
           setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer}
           showSidePanel={fileId || results.length > 0}
+          fileId={fileId || null}
           setResultsAndOpenDocumentSearch={setResultsAndOpenDocumentSearch}
         />
         {(fileId || results.length > 0) && (

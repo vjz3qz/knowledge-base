@@ -8,7 +8,7 @@ const FileMessage = ({ fileName, fileSize, timestamp }) => {
           <div className="file-info">
               <div className="file-details">
                 <span className="file-icon">📄  </span>
-                <span className="file-name">Rahul uploaded {fileName} </span>
+                <span className="file-name">User uploaded {fileName} </span>
                 <span className="file-size">{fileSize} mb</span>
             </div>
           </div>

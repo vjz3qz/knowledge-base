@@ -12,7 +12,7 @@ import { pdfjs } from "react-pdf";
 import axios from "axios";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsAndOpenDocumentSearch }) => {
+const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, setResultsAndOpenDocumentSearch }) => {
 
   // State Declarations
   const [messages, setMessages] = useState([]);
@@ -59,6 +59,17 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
     setHighlightExtractDataButton(false);
   };
 
+  const [metadata, setMetadata] = useState({});
+
+  const fetchMetadata = async () => {
+      const result = await axios.get(
+        `http://localhost:5001/api/v2/view-metadata/${fileId}`
+      );
+      // Here you would load the document's details, including fetching the summary and setting the file name
+      setMetadata(result.data);
+      
+    };
+
   // Message Handling Functions
   async function handleSendMessage() {
     if (inputValue.trim()) {
@@ -67,9 +78,35 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
       if (highlightAnswerQuestionButton) {
 
         const [answer, results] = await getSearchResults(inputValue);
-        const newAnswerMessage = { text: answer, isUserMessage: false };
+        const newAnswerMessage = { text: `Searched available documents. Found ${results.length} relevant documents.`, isUserMessage: false };
         setMessages([...messages, newMessage, newAnswerMessage]);
-        setResultsAndOpenDocumentSearch(results);
+        if (fileId) {
+          console.log('test test test');
+          fetchMetadata(fileId);
+          console.log(metadata);
+          const payload = {
+            user_message: inputValue,
+            conversation_history: messages.map((m) => m.content),
+            id: fileId,
+            file_type: metadata["file_type"],
+          };
+          const result = await axios.post(
+            "http://localhost:5001/api/v2/document-chat",
+            payload
+          );
+          const responseMessage = result.data.response;
+          console.log(responseMessage);
+          console.log(messages);
+          setMessages([
+            ...messages,
+            { text: inputValue, isUserMessage: true },
+            { text: responseMessage, isUserMessage: false },
+          ]);
+          setInputValue("");
+        }
+        else {
+          setResultsAndOpenDocumentSearch(results);
+        }
         // setHighlightAnswerQuestionButton(false);
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
