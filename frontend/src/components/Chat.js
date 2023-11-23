@@ -19,7 +19,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
   const [showChat, setShowChat] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
-  const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(false);
+  const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(true);
   const [highlightExtractDataButton, setHighlightExtractDataButton] = useState(false);
   const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] = useState(false);
 
@@ -34,7 +34,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
   const handleUploadClick = () => {
     setHighlightUploadButton(true);
     fileInputRef.current.click();
-    setHighlightAnswerQuestionButton(false);
+    // setHighlightAnswerQuestionButton(false);
     setHighlightExtractDataButton(false);
     setHighlightIncidentCaptureButton(false);
 
@@ -72,7 +72,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
         const newAnswerMessage = { text: answer, isUserMessage: false };
         setMessages([...messages, newMessage, newAnswerMessage]);
         setResultsAndOpenDocumentSearch(results);
-        setHighlightAnswerQuestionButton(false);
+        // setHighlightAnswerQuestionButton(false);
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
       } else if (highlightIncidentCaptureButton) {
@@ -173,8 +173,6 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
 
 
 
-  // TODO fix upload, don't view document immediately after upload, or get it somehow
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -235,11 +233,11 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
             highlight={highlightUploadButton}
             label="Upload"
           />
-          <ActionButton
+          {/* <ActionButton
             onClick={handleAnswerQuestionClick}
             highlight={highlightAnswerQuestionButton}
             label="Answer Question"
-          />
+          /> */}
           {/* <ActionButton
             onClick={handleExtractDataClick}
             highlight={highlightExtractDataButton}
