@@ -52,17 +52,19 @@ def video_file_handler(video_file, llm, content_type):
         "content_type": content_type,
         "file_type": "video"
     }
+    video_file.seek(0)
     upload_document_to_s3(video_file, file_id, metadata, content_type, bucket='trace-ai-knowledge-base-documents')
     # FOR RAG
     # Create an in-memory bytes buffer
     text_file = BytesIO(transcript.encode('utf-8'))
+    text_file.seek(0)
     metadata = {
         "name": video_file.filename,
         "summary": summary,
         "content_type": "text/plain",
         "file_type": "text"
     }
-    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-transcripts')
+    upload_document_to_s3(text_file, file_id, content_type="text/plain", bucket='trace-ai-transcripts')
     return file_id, 200
     
     #https://platform.openai.com/docs/guides/speech-to-text
@@ -87,8 +89,8 @@ def whisper_transcribe(video_file):
         segments = result['segments']
         # language = result['language']
 
-        # TODO transform time stamps
-        time_stamps = [(segment['start'], segment['end']) for segment in segments]
+        # time_stamps = [(segment['start'], segment['end']) for segment in segments]
+        time_stamps = [segment['start'] for segment in segments]
         texts = [segment['text'] for segment in segments]
         return transcript, texts, time_stamps
     except Exception as e:

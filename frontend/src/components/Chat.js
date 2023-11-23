@@ -181,6 +181,8 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
       const fileId = handleFileUpload(file);
       // TODO fetch via file id
       //setFileIdAndOpenDocumentViewer(fileId);
+      // fileInputRef = useRef(null);
+      // WOnt upload if same, see if we want to change that
     }
   };
 

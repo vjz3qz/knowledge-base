@@ -64,6 +64,7 @@ def embed_to_chroma(texts, sources, chunk_ids):
                             ids=chunk_ids, persist_directory=PERSISTENT_DIRECTORY)
         print(f"Document added successfully.")
     except Exception as e:
+        print("Error adding document to Chroma DB.")
         print(e)
 
 
@@ -109,5 +110,6 @@ def search_k_in_chroma(query, k=3, chroma_db=None):
         else:
             print("Invalid source item format:", source_item)
     response = {"answer": qa_response['answer'], "sources": source_data}
+    print(response)
     # TODO add time stamp support in frontend
     return response
