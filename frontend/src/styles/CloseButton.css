@@ -1,0 +1,32 @@
+.close-button {
+    background-color: transparent; /* Make the background transparent */
+    border: none; /* No border */
+    cursor: pointer; /* Pointer cursor on hover */
+    position: absolute; /* Position it absolutely to the top-right corner */
+    top: 40px; /* Adjust as per your requirement */
+    right: 10px; /* Adjust as per your requirement */
+    padding: 0; /* No padding */
+    display: flex; /* Use flexbox to center the line */
+    align-items: center; /* Center the line vertically */
+    justify-content: center; /* Center the line horizontally */
+    height: 24px; /* Height of the button */
+    width: 24px; /* Width of the button */
+    z-index: 1; /* Ensure it's above other content */
+  }
+  
+  .close-button::before, .close-button::after {
+    content: ''; /* This is necessary to create pseudo-elements */
+    position: absolute;
+    height: 1px; /* Line height */
+    width: 100%; /* Line width */
+    background-color: #333; /* Line color */
+  }
+  
+  .close-button::before {
+    transform: rotate(45deg); /* First line at 45 degrees */
+  }
+  
+  .close-button::after {
+    transform: rotate(-45deg); /* Second line at -45 degrees */
+  }
+  

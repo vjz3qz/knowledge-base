@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import "../styles/Home.css";
+import "../styles/CloseButton.css";
 import Header from "../ui/Header";
 import Chat from "../components/Chat";
 import DocumentViewer from "../components/DocumentViewer";
 import DocumentSearch from "../components/DocumentSearch";
-
 
 const Home = () => {
   const user = {
@@ -16,7 +16,6 @@ const Home = () => {
   const [fileId, setFileId] = useState(null);
   const [results, setResults] = useState([]);
 
-
   const setFileIdAndOpenDocumentViewer = (fileId) => {
     setFileId(fileId);
     setResults([]);
@@ -25,7 +24,25 @@ const Home = () => {
   const setResultsAndOpenDocumentSearch = (results) => {
     setResults(results);
     setFileId(null);
-  }
+  };
+
+  const SidePanel = ({ onClose }) => {
+    return (
+      <div style={{ display: 'flex', 
+      height: '100%' }}>
+        {/* Your side panel content goes here */}
+        <button onClick={onClose}
+        className="close-button" />
+        {fileId && <DocumentViewer id={fileId} />}
+        {results.length > 0 && (
+          <DocumentSearch
+            results={results}
+            setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`app-container`}>
@@ -34,11 +51,28 @@ const Home = () => {
         <Chat
           user={user}
           setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer}
-          showSidePanel={fileId || results.length > 0 } 
+          showSidePanel={fileId || results.length > 0}
           setResultsAndOpenDocumentSearch={setResultsAndOpenDocumentSearch}
         />
+        {(fileId || results.length > 0) && (
+          <SidePanel
+            onClose={() => {
+              setFileId(null);
+              setResults([]);
+            }}
+          />
+        )}
+        {/* {(fileId || results.length > 0) && (
+        <button onClick={() => {
+              setFileId(null);
+              setResults([]);}}>X</button>)}
         {fileId && <DocumentViewer id={fileId} />}
-        {results.length > 0 && <DocumentSearch results={results} setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer} />}
+        {results.length > 0 && (
+          <DocumentSearch
+            results={results}
+            setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer}
+          />
+        )} */}
       </div>
     </div>
   );
