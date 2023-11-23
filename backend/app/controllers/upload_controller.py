@@ -62,7 +62,7 @@ def video_file_handler(video_file, llm, content_type):
         "content_type": "text/plain",
         "file_type": "text"
     }
-    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-knowledge-base-transcripts')
+    upload_document_to_s3(text_file, file_id, content_type=content_type, bucket='trace-ai-transcripts')
     return file_id, 200
     
     #https://platform.openai.com/docs/guides/speech-to-text
