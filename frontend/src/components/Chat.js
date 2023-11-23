@@ -17,6 +17,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
+  const [uploadingStatus, setUploadingStatus] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
   const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(true);
@@ -63,11 +64,8 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
       
-      // TODO send message to backend
-      // TODO conditionally render the right thing for each button
       if (highlightAnswerQuestionButton) {
 
-        // TODO call doc search here, pass result to doc search cards
         const [answer, results] = await getSearchResults(inputValue);
         const newAnswerMessage = { text: answer, isUserMessage: false };
         setMessages([...messages, newMessage, newAnswerMessage]);
@@ -173,10 +171,13 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
 
 
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      const fileId = handleFileUpload(file);
+      setUploadingStatus(true);
+
+      const fileId = await handleFileUpload(file);
+      setUploadingStatus(false);
       // TODO fetch via file id
       //setFileIdAndOpenDocumentViewer(fileId);
       // fileInputRef = useRef(null);
@@ -251,6 +252,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, setResultsA
         </div>
         <ChatInputBar
           inputValue={inputValue}
+          uploadingStatus={uploadingStatus}
           setInputValue={setInputValue}
           handleSendMessage={handleSendMessage}
         />
