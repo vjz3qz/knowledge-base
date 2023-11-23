@@ -10,23 +10,23 @@ function FeatureSection() {
       <>
         <Logo className="logo-large" />
         <p>How can I help you today?</p>
-        {/* <div className="features-container">
+        <div className="features-container">
           <FeatureBox
             icon={<FaRegLightbulb />}
             title="Examples"
             description="Can interpret the P&ID from Highline Industries."
           />
-          <FeatureBox
+          {/* <FeatureBox
             icon={<MdOutlineRememberMe />}
             title="Capabilities"
             description="Remembers what user said earlier in the conversation."
-          />
+          /> */}
           <FeatureBox
             icon={<AiOutlineExclamationCircle />}
             title="Limitations"
             description="May occasionally generate incorrect information."
           />
-        </div> */}
+        </div>
       </>
     );
   };
