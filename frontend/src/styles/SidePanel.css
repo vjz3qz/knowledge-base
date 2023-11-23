@@ -1,0 +1,13 @@
+.side-panel {
+  position: fixed;
+  top: 30px;
+  bottom: 100px;
+  right: 0;
+  width: 700px; /* Adjust the width as needed */
+  height:100%;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  z-index: 100; /* Ensure it's above other content */
+  transition: right 0.3s
+}
+/* SidePanel.css */

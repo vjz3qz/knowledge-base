@@ -66,10 +66,10 @@ def upload():
     if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'video/mp4']:
         return jsonify({"error": "Invalid content type"}), 400
     
-    status = upload_file_handler(uploaded_file, llm, content_type, file_type)
+    file_id, status = upload_file_handler(uploaded_file, llm, content_type, file_type)
     if status == 400:
         return jsonify({"error": "Invalid file format"}), 400
-    return "Success", 200
+    return jsonify({"message": "Success", "file_id": file_id}), 200
 
 
 @v2.route('/view/<file_id>', methods=['GET'])
