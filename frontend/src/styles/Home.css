@@ -86,6 +86,13 @@
   /* Add any additional styling such as hover effects, font styling, etc. */
 }
 
+.action-button-white.disabled,
+.action-button-black.disabled {
+  /* Styles for disabled state, e.g., lower opacity, greyed out, etc. */
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Style for chat bar */
 .chat-bar {
   width: 100%; /* Make chat bar wider */
