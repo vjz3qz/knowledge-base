@@ -14,7 +14,7 @@ function FeatureSection() {
         <FeatureBox
           icon={<FaRegLightbulb />}
           title="Examples"
-          description="Can interpret the P&ID from Highline Industries."
+          description="Can interpret the P&ID from Highline Industries?"
         />
         {/* <FeatureBox
             icon={<MdOutlineRememberMe />}
