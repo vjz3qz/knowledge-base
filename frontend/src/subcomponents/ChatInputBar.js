@@ -11,7 +11,7 @@ function ChatInputBar({
       <input
         type="text"
         className="chat-input"
-        placeholder={ uploadingStatus ? "uploading..." : "Send a message..." }
+        placeholder={uploadingStatus ? "uploading..." : "Send a message..."}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         disabled={uploadingStatus} // Disable input when uploading

@@ -1,10 +1,12 @@
 // ChatBubble.js
 
-import React from 'react';
-import '../styles/ChatBubble.css'; // Ensure you have the corresponding CSS file
+import React from "react";
+import "../styles/ChatBubble.css"; // Ensure you have the corresponding CSS file
 
 const ChatBubble = ({ message, isUserMessage, timestamp, logo }) => {
-  const bubbleClass = isUserMessage ? 'chat-bubble user-bubble' : 'chat-bubble bot-bubble';
+  const bubbleClass = isUserMessage
+    ? "chat-bubble user-bubble"
+    : "chat-bubble bot-bubble";
 
   return (
     <div className={bubbleClass}>

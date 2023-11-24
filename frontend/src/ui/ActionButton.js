@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
 const ActionButton = ({ onClick, highlight, label, disabled }) => {
-  let buttonClass = 'action-button-white';
+  let buttonClass = "action-button-white";
   if (highlight) {
-    buttonClass = 'action-button-black';
+    buttonClass = "action-button-black";
   }
   if (disabled) {
-    buttonClass += ' disabled'; // Assuming you have appropriate styles for the disabled state
+    buttonClass += " disabled"; // Assuming you have appropriate styles for the disabled state
   }
 
   return (

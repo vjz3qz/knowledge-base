@@ -1,5 +1,4 @@
 .container {
-    background-color: rgb(230, 230, 230);
-    flex-grow: 1; /* Grow to take up remaining space */
-
+  background-color: rgb(230, 230, 230);
+  flex-grow: 1; /* Grow to take up remaining space */
 }

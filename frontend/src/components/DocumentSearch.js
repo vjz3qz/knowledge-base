@@ -3,7 +3,6 @@ import DocumentCard from "../subcomponents/DocumentCard";
 import "../styles/DocumentSearch.css";
 
 const DocumentSearch = ({ results, setFileIdAndOpenDocumentViewer }) => {
-
   return (
     <div className="container">
       <div className="search-panel">

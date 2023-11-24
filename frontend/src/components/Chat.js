@@ -17,7 +17,6 @@ const Chat = ({
   fileId,
   setResultsAndOpenDocumentSearch,
 }) => {
-  console.log(fileId);
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -119,8 +118,6 @@ const Chat = ({
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
       if (highlightAnswerDocumentQuestionButton) {
-        console.log("test test test");
-        console.log(metadata);
         const payload = {
           user_message: inputValue,
           conversation_history: messages.map((m) => m.content),
@@ -132,8 +129,6 @@ const Chat = ({
           payload
         );
         const responseMessage = result.data.response;
-        console.log(responseMessage);
-        console.log(messages);
         setMessages([
           ...messages,
           { text: inputValue, isUserMessage: true },

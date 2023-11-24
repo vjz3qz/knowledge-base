@@ -4,9 +4,6 @@
   height: 100vh;
 }
 
-
-
-
 .features-container {
   display: flex;
   justify-content: center;
@@ -55,7 +52,6 @@
   transform: translateX(50%);
 }
 
-
 /* Style for action buttons */
 .action-buttons {
   display: flex;
@@ -99,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-   /* This spaces out the input and button */
+  /* This spaces out the input and button */
 }
 
 /* Style for the chat input field */
@@ -119,7 +115,7 @@
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  position: relative; 
+  position: relative;
 }
 
 .fade-out {
@@ -137,8 +133,6 @@
     display: none;
   }
 }
-
-
 
 .chat-container {
   display: flex;
@@ -179,7 +173,9 @@
 
 .chat-container {
   /* Adjust the width to leave space for the side panel */
-  width: calc(100% - 300px); /* This should be the rest of the space minus the side panel width */
+  width: calc(
+    100% - 300px
+  ); /* This should be the rest of the space minus the side panel width */
   transition: width 0.3s; /* Optional: animate the width change */
 }
 
@@ -197,7 +193,6 @@
   width: 400px; /* Set the width of your side panel */
   /* Add other styles for the side panel */
 }
-
 
 /* Styles for the container that includes both the DocumentViewer and Chat */
 .main-container {

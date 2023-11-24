@@ -28,11 +28,9 @@ const Home = () => {
 
   const SidePanel = ({ onClose }) => {
     return (
-      <div style={{ display: 'flex', 
-      height: '100%' }}>
+      <div style={{ display: "flex", height: "100%" }}>
         {/* Your side panel content goes here */}
-        <button onClick={onClose}
-        className="close-button" />
+        <button onClick={onClose} className="close-button" />
         {fileId && <DocumentViewer id={fileId} />}
         {results.length > 0 && (
           <DocumentSearch
@@ -63,17 +61,6 @@ const Home = () => {
             }}
           />
         )}
-        {/* {(fileId || results.length > 0) && (
-        <button onClick={() => {
-              setFileId(null);
-              setResults([]);}}>X</button>)}
-        {fileId && <DocumentViewer id={fileId} />}
-        {results.length > 0 && (
-          <DocumentSearch
-            results={results}
-            setFileIdAndOpenDocumentViewer={setFileIdAndOpenDocumentViewer}
-          />
-        )} */}
       </div>
     </div>
   );
