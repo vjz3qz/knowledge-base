@@ -1,31 +1,45 @@
 // Chat.js
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ChatBubble from "../ui/ChatBubble";
 import FileMessage from "../ui/FileMessage";
 import IframeMessage from "../ui/IframeMessage";
-import ActionButton from '../ui/ActionButton'; // Import the new ActionButton component
+import ActionButton from "../ui/ActionButton"; // Import the new ActionButton component
 import ChatInputBar from "../subcomponents/ChatInputBar";
 import FeatureSection from "../subcomponents/FeatureSection";
 import getSearchResults from "../utils/GetSearchResults";
-import { pdfjs } from "react-pdf";
 import axios from "axios";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, setResultsAndOpenDocumentSearch }) => {
-
+const Chat = ({
+  user,
+  setFileIdAndOpenDocumentViewer,
+  showSidePanel,
+  fileId,
+  setResultsAndOpenDocumentSearch,
+}) => {
+  console.log(fileId);
   // State Declarations
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [uploadingStatus, setUploadingStatus] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
-  const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(true);
-  const [highlightExtractDataButton, setHighlightExtractDataButton] = useState(false);
-  const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] = useState(false);
+  const [highlightDocumentSearchButton, setHighlightDocumentSearchButton] =
+    useState(false);
+  const [highlightExtractDataButton, setHighlightExtractDataButton] =
+    useState(false);
+  const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] =
+    useState(false);
 
   // SUPPORT QUESTION ANSWER ONLY WITHOUT DOCS
-  //const [highlightAnswerQuestionButton, setHighlightAnswerQuestionButton] = useState(false);
+  const [
+    highlightAnswerGeneralQuestionButton,
+    setHighlightAnswerGeneralQuestionButton,
+  ] = useState(false);
+  const [
+    highlightAnswerDocumentQuestionButton,
+    setHighlightAnswerDocumentQuestionButton,
+  ] = useState(false);
 
   // Ref Declarations
   const fileInputRef = useRef(null);
@@ -35,88 +49,117 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
   const handleUploadClick = () => {
     setHighlightUploadButton(true);
     fileInputRef.current.click();
-    // setHighlightAnswerQuestionButton(false);
+    setHighlightDocumentSearchButton(false);
     setHighlightExtractDataButton(false);
     setHighlightIncidentCaptureButton(false);
-
+    setHighlightAnswerDocumentQuestionButton(false);
+    setHighlightAnswerGeneralQuestionButton(false);
   };
-  const handleAnswerQuestionClick = () => {
-    setHighlightAnswerQuestionButton(true);
+  const handleDocumentSearchClick = () => {
+    setHighlightDocumentSearchButton(true);
     setHighlightUploadButton(false);
     setHighlightExtractDataButton(false);
     setHighlightIncidentCaptureButton(false);
+    setHighlightAnswerDocumentQuestionButton(false);
+    setHighlightAnswerGeneralQuestionButton(false);
   };
   const handleExtractDataClick = () => {
     setHighlightExtractDataButton(true);
     setHighlightUploadButton(false);
-    setHighlightAnswerQuestionButton(false);
+    setHighlightDocumentSearchButton(false);
     setHighlightIncidentCaptureButton(false);
+    setHighlightAnswerDocumentQuestionButton(false);
+    setHighlightAnswerGeneralQuestionButton(false);
   };
   const handleIncidentCaptureClick = () => {
     setHighlightIncidentCaptureButton(true);
     setHighlightUploadButton(false);
-    setHighlightAnswerQuestionButton(false);
+    setHighlightDocumentSearchButton(false);
     setHighlightExtractDataButton(false);
+    setHighlightAnswerDocumentQuestionButton(false);
+    setHighlightAnswerGeneralQuestionButton(false);
+  };
+
+  // create click methods for general question and document question
+  const handleAnswerGeneralQuestionClick = () => {
+    setHighlightAnswerGeneralQuestionButton(true);
+    setHighlightAnswerDocumentQuestionButton(false);
+    setHighlightUploadButton(false);
+    setHighlightDocumentSearchButton(false);
+    setHighlightExtractDataButton(false);
+    setHighlightIncidentCaptureButton(false);
+  };
+  const handleAnswerDocumentQuestionClick = () => {
+    setHighlightAnswerDocumentQuestionButton(true);
+    setHighlightAnswerGeneralQuestionButton(false);
+    setHighlightUploadButton(false);
+    setHighlightDocumentSearchButton(false);
+    setHighlightExtractDataButton(false);
+    setHighlightIncidentCaptureButton(false);
   };
 
   const [metadata, setMetadata] = useState({});
 
+  // create a use effect for fetching metadata with fileid as a dependency
+  useEffect(() => {
+    if (fileId) {
+      fetchMetadata();
+    }
+  }, [fileId]);
   const fetchMetadata = async () => {
-      const result = await axios.get(
-        `http://localhost:5001/api/v2/view-metadata/${fileId}`
-      );
-      // Here you would load the document's details, including fetching the summary and setting the file name
-      setMetadata(result.data);
-      
-    };
+    const result = await axios.get(
+      `http://localhost:5001/api/v2/view-metadata/${fileId}`
+    );
+    // Here you would load the document's details, including fetching the summary and setting the file name
+    setMetadata(result.data);
+  };
 
   // Message Handling Functions
   async function handleSendMessage() {
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
-      
-      if (highlightAnswerQuestionButton) {
-
+      if (highlightAnswerDocumentQuestionButton) {
+        console.log("test test test");
+        console.log(metadata);
+        const payload = {
+          user_message: inputValue,
+          conversation_history: messages.map((m) => m.content),
+          id: fileId,
+          file_type: metadata["file_type"],
+        };
+        const result = await axios.post(
+          "http://localhost:5001/api/v2/document-chat",
+          payload
+        );
+        const responseMessage = result.data.response;
+        console.log(responseMessage);
+        console.log(messages);
+        setMessages([
+          ...messages,
+          { text: inputValue, isUserMessage: true },
+          { text: responseMessage, isUserMessage: false },
+        ]);
+        setInputValue("");
+      } else if (highlightDocumentSearchButton) {
         const [answer, results] = await getSearchResults(inputValue);
-        const newAnswerMessage = { text: `Searched available documents. Found ${results.length} relevant documents.`, isUserMessage: false };
+        const newAnswerMessage = {
+          text: `Searched available documents. Found ${results.length} relevant documents.`,
+          isUserMessage: false,
+        };
         setMessages([...messages, newMessage, newAnswerMessage]);
-        if (fileId) {
-          console.log('test test test');
-          fetchMetadata(fileId);
-          console.log(metadata);
-          const payload = {
-            user_message: inputValue,
-            conversation_history: messages.map((m) => m.content),
-            id: fileId,
-            file_type: metadata["file_type"],
-          };
-          const result = await axios.post(
-            "http://localhost:5001/api/v2/document-chat",
-            payload
-          );
-          const responseMessage = result.data.response;
-          console.log(responseMessage);
-          console.log(messages);
-          setMessages([
-            ...messages,
-            { text: inputValue, isUserMessage: true },
-            { text: responseMessage, isUserMessage: false },
-          ]);
-          setInputValue("");
-        }
-        else {
-          setResultsAndOpenDocumentSearch(results);
-        }
-        // setHighlightAnswerQuestionButton(false);
+        setResultsAndOpenDocumentSearch(results);
+        setHighlightDocumentSearchButton(false);
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
       } else if (highlightIncidentCaptureButton) {
         setHighlightIncidentCaptureButton(false);
+      } else if (highlightAnswerGeneralQuestionButton) {
+        setHighlightAnswerGeneralQuestionButton(false);
       }
       setInputValue("");
       setShowChat(true);
     }
-  };
+  }
 
   const handleIframeMessage = (url) => {
     const newIframeMessage = {
@@ -145,21 +188,26 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
       isUserMessage: true,
     };
     const fileId = await uploadAndGetFileId(file);
-    setMessages((prevMessages) => [...prevMessages, newFileMessage, { text: `Successfully uploaded ${file.name}.`, isUserMessage: false }]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      newFileMessage,
+      { text: `Successfully uploaded ${file.name}.`, isUserMessage: false },
+    ]);
     setHighlightUploadButton(false);
     setShowChat(true);
-    return fileId
-  };
-
-
-
+    return fileId;
+  }
 
   const uploadAndGetFileId = async (file) => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('content_type', file.type);
+    formData.append("file", file);
+    formData.append("content_type", file.type);
     // create an array with the mime types of txt, pdf, docx
-    const fileTypes = ["text/plain", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    const fileTypes = [
+      "text/plain",
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
     // create an array with the mime types of jpg, png, jpeg
     const imageTypes = ["image/jpg", "image/png", "image/jpeg"];
     // create an array with the mime types of mp4
@@ -171,28 +219,32 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
     } else if (imageTypes.includes(file.type)) {
       uploadType = "diagram";
       // TODO support pdf diagrams
-    } else if (videoTypes.includes(file.type)) { 
+    } else if (videoTypes.includes(file.type)) {
       uploadType = "video";
     } else {
       // if the file type is not one of the above, then it is unsupported
       // break out of the function
       return;
     }
-    formData.append('file_type', uploadType);
+    formData.append("file_type", uploadType);
 
     try {
-      const response = await axios.post('http://localhost:5001/api/v2/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    
+      const response = await axios.post(
+        "http://localhost:5001/api/v2/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       // Check if response includes file_id
       if (response.status === 200 && response.data.file_id) {
         return response.data.file_id;
       } else {
         // Handle the case where file_id is not present in the response
-        console.log('Upload successful, but no file ID returned.');
+        console.log("Upload successful, but no file ID returned.");
         return null;
       }
     } catch (error) {
@@ -201,12 +253,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
       console.log(errorMessage);
       return null;
     }
-    
   };
-
-
-
-
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -215,8 +262,7 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
 
       const fileId = await handleFileUpload(file);
       setUploadingStatus(false);
-      // TODO fetch via file id
-      //setFileIdAndOpenDocumentViewer(fileId);
+      setFileIdAndOpenDocumentViewer(fileId);
       // fileInputRef = useRef(null);
       // WOnt upload if same, see if we want to change that
     }
@@ -226,7 +272,11 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
   const renderChatBubbles = () => {
     return (
       showChat && (
-        <div className={`chat-container ${showSidePanel ? 'full-width' : 'half-width'}`}>
+        <div
+          className={`chat-container ${
+            showSidePanel ? "full-width" : "half-width"
+          }`}
+        >
           {messages.map((message, index) =>
             message.type === "file" ? (
               <FileMessage key={index} {...message} />
@@ -264,18 +314,33 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
         style={{ display: "none" }}
       />
 
-      <div className={`bottom-container ${showSidePanel ? 'full-width' : 'half-width'}`}>
+      <div
+        className={`bottom-container ${
+          showSidePanel ? "full-width" : "half-width"
+        }`}
+      >
         <div className="action-buttons">
           <ActionButton
             onClick={handleUploadClick}
             highlight={highlightUploadButton}
             label="Upload"
           />
+          <ActionButton
+            onClick={handleDocumentSearchClick}
+            highlight={highlightDocumentSearchButton}
+            label="Document Search"
+          />
           {/* <ActionButton
-            onClick={handleAnswerQuestionClick}
-            highlight={highlightAnswerQuestionButton}
-            label="Answer Question"
+            onClick={handleAnswerGeneralQuestionClick}
+            highlight={highlightAnswerGeneralQuestionButton}
+            label="General Question"
           /> */}
+          <ActionButton
+            onClick={handleAnswerDocumentQuestionClick}
+            highlight={highlightAnswerDocumentQuestionButton}
+            label="Query Document"
+            disabled={!fileId} // Disable the button if fileId is false or undefined
+          />
           {/* <ActionButton
             onClick={handleExtractDataClick}
             highlight={highlightExtractDataButton}
@@ -293,7 +358,6 @@ const Chat = ({ user, setFileIdAndOpenDocumentViewer, showSidePanel, fileId, set
           setInputValue={setInputValue}
           handleSendMessage={handleSendMessage}
         />
-        
       </div>
     </div>
   );
