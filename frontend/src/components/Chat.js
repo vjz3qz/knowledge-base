@@ -161,6 +161,14 @@ const Chat = ({
         setResultsAndOpenDocumentSearch(results);
         setHighlightDocumentSearchButton(false);
       } else if (highlightExtractDataButton) {
+
+        // TODO hard code with responses right now
+        // iframe components response
+        // iframe specific component response
+
+
+
+
         setHighlightExtractDataButton(false);
       } else if (highlightIncidentCaptureButton) {
 
@@ -357,11 +365,11 @@ const Chat = ({
         }`}
       >
         <div className="action-buttons">
-          <ActionButton
+          {/* <ActionButton
             onClick={handleUploadClick}
             highlight={highlightUploadButton}
             label="Upload"
-          />
+          /> */}
           <ActionButton
             onClick={handleDocumentSearchClick}
             highlight={highlightDocumentSearchButton}
