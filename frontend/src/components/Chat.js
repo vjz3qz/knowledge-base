@@ -365,11 +365,11 @@ const Chat = ({
         }`}
       >
         <div className="action-buttons">
-          {/* <ActionButton
+          <ActionButton
             onClick={handleUploadClick}
             highlight={highlightUploadButton}
             label="Upload"
-          /> */}
+          />
           <ActionButton
             onClick={handleDocumentSearchClick}
             highlight={highlightDocumentSearchButton}
@@ -386,7 +386,7 @@ const Chat = ({
             label="Query Document"
             disabled={!fileId} // Disable the button if fileId is false or undefined
           />
-          <ActionButton
+          {/* <ActionButton
             onClick={handleExtractDataClick}
             highlight={highlightExtractDataButton}
             label="Extract Data"
@@ -396,7 +396,7 @@ const Chat = ({
             onClick={handleIncidentCaptureClick}
             highlight={highlightIncidentCaptureButton}
             label="Incident Capture"
-          />
+          /> */}
         </div>
         <ChatInputBar
           inputValue={inputValue}
