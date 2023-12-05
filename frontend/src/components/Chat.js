@@ -30,6 +30,22 @@ const Chat = ({
   const [highlightIncidentCaptureButton, setHighlightIncidentCaptureButton] =
     useState(false);
 
+  const [incidentQuestionResponseNumber, setIncidentQuestionResponseNumber] = useState(0);
+
+  const incrementIncidentQuestionResponseNumber = () => {
+    setIncidentQuestionResponseNumber((incidentQuestionResponseNumber + 1) % 7);
+    return (incidentQuestionResponseNumber + 1) % 7;
+  };
+
+  const questions = [
+    "What is the date/time of the incident?",
+    "Who was involved in the incident?",
+    "What components were involved?",
+    "Were there any injuries?",
+    "Can you tell me more about what happened?",
+    "What was done to solve the issue?",
+  ];
+
   // SUPPORT QUESTION ANSWER ONLY WITHOUT DOCS
   const [
     highlightAnswerGeneralQuestionButton,
@@ -147,7 +163,33 @@ const Chat = ({
       } else if (highlightExtractDataButton) {
         setHighlightExtractDataButton(false);
       } else if (highlightIncidentCaptureButton) {
-        setHighlightIncidentCaptureButton(false);
+
+
+        // chat message
+        const newAnswerMessage = { text: questions[incidentQuestionResponseNumber], isUserMessage: false };
+        const newNumber = incrementIncidentQuestionResponseNumber();
+        setMessages([...messages, newMessage, newAnswerMessage]);
+        if (newNumber === 0) { // need to unhighlight after we get the last response
+          // send messages to back end to generate the incident report, display here
+          // for now, create a dummy incident report
+          const incidentReport = {
+            "date": "2021-09-15T00:00:00.000Z",
+            "time": "2021-09-15T00:00:00.000Z",
+            "location": "San Francisco",
+            "people": "Rahul Kumar, John Doe",
+            "components": "Engine, Wing",
+            "injuries": "None",
+            "description": "Engine failure",
+            "resolution": "Replaced engine",
+            "id": "613f4b6e3b7f1f0f8c8a9a9d"
+          }
+          // open document viewer with incident report
+          setFileIdAndOpenDocumentViewer(incidentReport.id);
+          const newResponseMessage = { text: "Incident report generated. Please let me know if you would like to make any edits!", isUserMessage: false };
+          setMessages([...messages, newResponseMessage]);
+          // TODO createa better sample incudent report
+          setHighlightIncidentCaptureButton(false);
+        }
       } else if (highlightAnswerGeneralQuestionButton) {
         setHighlightAnswerGeneralQuestionButton(false);
       }
@@ -336,16 +378,17 @@ const Chat = ({
             label="Query Document"
             disabled={!fileId} // Disable the button if fileId is false or undefined
           />
-          {/* <ActionButton
+          <ActionButton
             onClick={handleExtractDataClick}
             highlight={highlightExtractDataButton}
             label="Extract Data"
+            disabled={!fileId} // Disable the button if fileId is false or undefined
           />
           <ActionButton
             onClick={handleIncidentCaptureClick}
             highlight={highlightIncidentCaptureButton}
             label="Incident Capture"
-          /> */}
+          />
         </div>
         <ChatInputBar
           inputValue={inputValue}
