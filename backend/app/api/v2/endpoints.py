@@ -61,7 +61,7 @@ def upload():
 
     if file_type not in ['text', 'diagram', 'video']:
         return jsonify({"error": "Invalid file type"}), 400
-
+    # TODO fix word docx
     # if not appropriate handler, return error
     if content_type not in ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'video/mp4']:
         return jsonify({"error": "Invalid content type"}), 400

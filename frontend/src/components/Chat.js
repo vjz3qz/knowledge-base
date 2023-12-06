@@ -88,8 +88,8 @@ const Chat = ({
   };
   
   // State Declarations
-  const [messages, setMessages] = useState([newIframeMessage]);
-  const [showChat, setShowChat] = useState(true);
+  const [messages, setMessages] = useState([]);
+  const [showChat, setShowChat] = useState(false);
   const [uploadingStatus, setUploadingStatus] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
@@ -235,6 +235,9 @@ const Chat = ({
         // TODO hard code with responses right now
         // iframe components response
         // iframe specific component response
+
+        // add new iframe message to messages
+        setMessages([...messages, newMessage, newIframeMessage]);
 
 
 
@@ -461,11 +464,11 @@ const Chat = ({
             label="Extract Data"
             disabled={!fileId} // Disable the button if fileId is false or undefined
           />
-          <ActionButton
+          {/* <ActionButton
             onClick={handleIncidentCaptureClick}
             highlight={highlightIncidentCaptureButton}
             label="Incident Capture"
-          />
+          /> */}
         </div>
         <ChatInputBar
           inputValue={inputValue}
