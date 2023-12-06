@@ -199,8 +199,13 @@ const Chat = ({
     setMetadata(result.data);
   };
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   // Message Handling Functions
   async function handleSendMessage() {
+    await sleep(3000);
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
       if (highlightAnswerDocumentQuestionButton) {
