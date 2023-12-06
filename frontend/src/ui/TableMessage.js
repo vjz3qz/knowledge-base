@@ -11,9 +11,10 @@ const TableMessage = ({ src, timestamp }) => {
         <thead>
           <tr>
             <th>Symbol ID</th>
+            <th>Model ID</th>
             <th>Symbol Type</th>
             <th>Associated Text</th>
-            <th>Detection Method</th>
+            <th>Last Calibrated</th>
             <th>Connected Symbols</th>
           </tr>
         </thead>
@@ -21,9 +22,10 @@ const TableMessage = ({ src, timestamp }) => {
           {src.map((row, index) => (
             <tr key={index}>
               <td>{row.symbolId}</td>
+              <td>{row.modelID}</td>
               <td>{row.symbolType}</td>
               <td>{row.associatedText}</td>
-              <td>{row.detectionMethod}</td>
+              <td>{row.calibrationDate}</td>
               <td>{row.connectedSymbols}</td>
             </tr>
           ))}
