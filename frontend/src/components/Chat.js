@@ -18,8 +18,68 @@ const Chat = ({
   fileId,
   setResultsAndOpenDocumentSearch,
 }) => {
+
+  const data = [
+    {
+      symbolId: 0,
+      symbolType: "EQU",
+      associatedText: "EQU_TK-583034",
+      detectionMethod: "Manual",
+      connectedSymbols: 43,
+    },
+    {
+      symbolId: 1,
+      symbolType: "VAR",
+      associatedText: "VAR_DX-920401",
+      detectionMethod: "Automated",
+      connectedSymbols: 27,
+    },  
+    {
+      symbolId: 2,
+      symbolType: "FUNC",
+      associatedText: "FUNC_LM-840200",
+      detectionMethod: "Semi-Automatic",
+      connectedSymbols: 15,
+    },  
+    {
+      symbolId: 3,
+      symbolType: "EQU",
+      associatedText: "EQU_TK-583034",
+      detectionMethod: "Manual",
+      connectedSymbols: 43,
+    },
+    {
+      symbolId: 4,
+      symbolType: "VAR",
+      associatedText: "VAR_DX-920401",
+      detectionMethod: "Automated",
+      connectedSymbols: 27,
+    },
+    {
+      symbolId: 5,
+      symbolType: "FUNC",
+      associatedText: "FUNC_LM-840200",
+      detectionMethod: "Semi-Automatic",
+      connectedSymbols: 15,
+    },
+    {
+      symbolId: 6,
+      symbolType: "EQU",
+      associatedText: "EQU_TK-583034",
+      detectionMethod: "Manual",
+      connectedSymbols: 43,
+    },
+    {
+      symbolId: 7,
+      symbolType: "VAR",
+      associatedText: "VAR_DX-920401",
+      detectionMethod: "Automated",
+      connectedSymbols: 27,
+    },
+  ];
   const newIframeMessage = {
     type: "table",
+    src: data,
     timestamp: new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -215,18 +275,17 @@ const Chat = ({
       setShowChat(true);
     }
   }
-
-  const handleIframeMessage = (url) => {
-    const newIframeMessage = {
-      type: "iframe",
-      src: url, // Updated to use the passed URL
+  const handleTableMessage = (data) => {
+    const newTableMessage = {
+      type: "table",
+      src: data, // Updated to use the passed URL
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      isUserMessage: true,
+      isUserMessage: false,
     };
-    setMessages((prevMessages) => [...prevMessages, newIframeMessage]);
+    setMessages((prevMessages) => [...prevMessages, newTableMessage]);
   };
 
   // File Handling Functions
