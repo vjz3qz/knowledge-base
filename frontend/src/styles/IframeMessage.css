@@ -20,3 +20,20 @@ iframe {
 .iframe-message .timestamp {
   font-size: 0.75rem;
 }
+
+.iframe-message table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.iframe-message th,
+.iframe-message td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  font-weight: normal; /* This ensures that the text is not bold */
+}
+
+.iframe-message th {
+  background-color: #f2f2f2;
+}

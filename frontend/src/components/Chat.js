@@ -9,6 +9,7 @@ import ChatInputBar from "../subcomponents/ChatInputBar";
 import FeatureSection from "../subcomponents/FeatureSection";
 import getSearchResults from "../utils/GetSearchResults";
 import axios from "axios";
+import TableMessage from "../ui/TableMessage";
 
 const Chat = ({
   user,
@@ -17,9 +18,18 @@ const Chat = ({
   fileId,
   setResultsAndOpenDocumentSearch,
 }) => {
+  const newIframeMessage = {
+    type: "table",
+    timestamp: new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    isUserMessage: false,
+  };
+  
   // State Declarations
-  const [messages, setMessages] = useState([]);
-  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState([newIframeMessage]);
+  const [showChat, setShowChat] = useState(true);
   const [uploadingStatus, setUploadingStatus] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [highlightUploadButton, setHighlightUploadButton] = useState(false);
@@ -325,8 +335,8 @@ const Chat = ({
           {messages.map((message, index) =>
             message.type === "file" ? (
               <FileMessage key={index} {...message} />
-            ) : message.type === "iframe" ? (
-              <IframeMessage key={index} {...message} />
+            ) : message.type === "table" ? (
+              <TableMessage key={index} {...message} />
             ) : (
               <ChatBubble
                 key={index}
