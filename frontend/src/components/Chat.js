@@ -39,7 +39,7 @@ const Chat = ({
     {
       symbolId: 14,
       modelID: "304-48482",
-      symbolType: "Temperature Indiciator",
+      symbolType: "Temperature Indicator",
       associatedText: "TI",
       calibrationDate: "08/22/22",
       connectedSymbols: "1",
@@ -87,8 +87,8 @@ const Chat = ({
     {
       symbolId: 38,
       modelID: "395-53923",
-      symbolType: "VAR",
-      associatedText: "VAR_DX-920401",
+      symbolType: "Temperature Relay",
+      associatedText: "TY",
       calibrationDate: "08/22/22",
       connectedSymbols: "26,44"
     },
@@ -229,7 +229,7 @@ const Chat = ({
 
   // Message Handling Functions
   async function handleSendMessage() {
-    await sleep(3000);
+    await sleep(4000);
     if (inputValue.trim()) {
       const newMessage = { text: inputValue, isUserMessage: true };
       if (highlightAnswerDocumentQuestionButton) {
