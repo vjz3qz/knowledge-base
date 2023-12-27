@@ -4,10 +4,10 @@ frontend/node_modules
 /node_modules
 /.pnp
 .pnp.js
-backend/.env
+.env
 # testing
 /coverage
-/backend/Pipfile.lock
+Pipfile.lock
 # production
 /build
 frontend/package-lock.json
