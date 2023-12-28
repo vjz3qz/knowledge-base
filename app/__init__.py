@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
 from app.api.v1 import v1 as v1_blueprint
-from app.api.v2 import v2 as v2_blueprint
 import logging
 
 
@@ -13,7 +12,5 @@ def create_app():
     logging.basicConfig(level=logging.DEBUG)
     # Registering the v1 blueprint
     app.register_blueprint(v1_blueprint, url_prefix='/api/v1')
-    # Registering the v2 blueprint
-    app.register_blueprint(v2_blueprint, url_prefix='/api/v2')
 
     return app
