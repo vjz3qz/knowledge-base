@@ -77,6 +77,7 @@ def create_component():
     author (str): Author of the component.
     title (str): Title of the component.
     description (str): Actual content or summary.
+    location (str): Location of the component.
     media_list (str): media associated with the component.
 
     Returns:
