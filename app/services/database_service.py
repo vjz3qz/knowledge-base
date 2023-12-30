@@ -1,18 +1,13 @@
-import psycopg2
+# database_service.py
+from flask_sqlalchemy import SQLAlchemy
 import os
 
-# Function to get database connection
-def get_db_connection():
-    conn = psycopg2.connect(
-        host=os.environ['DB_HOST'],
-        dbname=os.environ['DB_NAME'],
-        user=os.environ['DB_USER'],
-        password=os.environ['DB_PASS']
-    )
-    return conn
+db = SQLAlchemy()
 
-def execute_query(query, params):
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, params)
-            return cur.fetchall()
+def init_db(app):
+    """Initialize the database with the given Flask app."""
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
