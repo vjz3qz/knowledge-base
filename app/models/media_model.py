@@ -1,19 +1,23 @@
+from pgvector.sqlalchemy import Vector
+from database_service import db
 
 
-class MediaModel:
-    def __init__(self, id, media_type, content_type, author, last_modified_date, location, description, tags, component_list, permissions, image_ids, video_ids, document_ids, text_search_vector, embedding_vector):
-        self.id = id
-        self.media_type = media_type
-        self.content_type = content_type
-        self.author = author
-        self.last_modified_date = last_modified_date
-        self.location = location
-        self.description = description
-        self.tags = tags
-        self.component_list = component_list
-        self.permissions = permissions
-        self.image_ids = image_ids
-        self.video_ids = video_ids
-        self.document_ids = document_ids
-        self.text_search_vector = text_search_vector
-        self.embedding_vector = embedding_vector
+
+class Media(db.Model):
+    id = db.Column(db.BIGINT, primary_key=True)
+    hash = db.Column(db.String(64), unique=True, nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, nullable=False)
+    last_modified = db.Column(db.TIMESTAMP, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.TEXT, nullable=False)
+    component_ids = db.Column(db.ARRAY(db.TEXT))
+    image_ids = db.Column(db.ARRAY(db.TEXT))
+    video_ids = db.Column(db.ARRAY(db.TEXT))
+    document_ids = db.Column(db.ARRAY(db.TEXT))
+    text_search_vector = db.Column(db.TSVECTOR)
+    embedding_vector = db.Column(Vector(1536))
+
+    def __repr__(self):
+        return f'<Media {self.id}>'
+

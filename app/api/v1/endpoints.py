@@ -105,7 +105,7 @@ def create_media():
     author (str): Author of the media.
     title (str): Title of the media.
     description (str): Actual content or summary.
-    component_id (str): Component associated with the media.
+    component_ids (str): Component associated with the media.
 
     TODO
     files (str): File data for images/videos/documents (to be stored in S3).
@@ -116,7 +116,7 @@ def create_media():
     author = request.json['author']
     title = request.json['title']
     description = request.json['description']
-    component_id = request.json['component_id']
+    component_id = request.json['component_ids']
     # files = request.json['files']
     try:
         media_id = create_new_media(author, title, description, component_id)
@@ -125,6 +125,7 @@ def create_media():
         print(e)
         return jsonify({"error": "Server error"}), 500
     return jsonify(media_id)
+
 
 v1.route('/assistant-chat', methods=['POST'])
 def assistant_chat():
