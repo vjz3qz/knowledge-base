@@ -17,3 +17,23 @@ def init_db(app):
     with app.app_context():
         db.create_all()
 
+# search_components(query)
+# search_media(query)
+
+# get_media_by_id(id)
+# get_component_by_id(id)
+
+# create_component(title, description, location)
+# create_media(author, title, description, component_ids, document_ids, image_ids, video_ids)
+
+# similarity_search(embedding)
+
+# FUTURE
+# list_components()
+# list_media()
+# update_user
+# update_component
+# update_media
+# delete_user
+# delete_component
+# delete_media
