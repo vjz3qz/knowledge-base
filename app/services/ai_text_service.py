@@ -9,6 +9,7 @@ except KeyError:
 
 
 api_key = os.environ.get('OPENAI_API_KEY')
+# TODO update to 4
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k",
                  openai_api_key=api_key)
 

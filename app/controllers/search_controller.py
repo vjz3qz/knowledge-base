@@ -2,32 +2,29 @@ from app.services.database_service import execute_query
 from app.services.openai_service import generate_embedding
 from app.models.media_model import MediaModel
 
-def combined_search_media(query, media_type, content_type, tags, component_list):
+def combined_search_media(query):
     # Step 1: Perform Full-Text Search
-    full_text_results = full_text_search(query, media_type, content_type, tags, component_list)
+    full_text_results = full_text_search(query)
 
     # Step 2: Perform Semantic Search
-    semantic_search_results = semantic_search(query, media_type, content_type, tags, component_list)
+    semantic_search_results = semantic_search(query)
 
     # Step 3: Combine and Process Results
     combined_results = combine_and_process_results(full_text_results, semantic_search_results)
 
     return combined_results
 
-def full_text_search(query, media_type, content_type, tags, component_list):
+def full_text_search(query):
     # Construct the full-text search query
+    # TODO use sqlachemy
     # Note: Use parameterized queries to prevent SQL injection
     full_text_query = "SELECT * FROM your_media_table WHERE textsearchable_index_col @@ plainto_tsquery(%s)"
     params = [query]
-
-    # Add additional filters based on provided parameters
-    # ...
-
     # Execute the query using the database service
     rows = execute_query(full_text_query, params)
     return [MediaModel.from_row(row) for row in rows]
 
-def semantic_search(query, media_type, content_type, tags, component_list):
+def semantic_search(query):
     # Generate embedding for the query using OpenAI API
     query_embedding = generate_embedding(query)
 
@@ -50,3 +47,18 @@ def combine_and_process_results(full_text_results, semantic_search_results):
 
     combined_results = full_text_results + semantic_search_results  # Simplistic approach
     return combined_results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
