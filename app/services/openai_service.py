@@ -12,3 +12,10 @@ api_key = os.environ.get('OPENAI_API_KEY')
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k",
                  openai_api_key=api_key)
 
+def generate_embedding(text):
+    pass
+
+def llm_inference(query, search_results):
+
+    # calls openai endpoint to respond based on context
+    pass
