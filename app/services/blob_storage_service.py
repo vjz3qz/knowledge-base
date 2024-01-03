@@ -1,48 +1,42 @@
-# AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are defined in the environment
-import sys
+# AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are defined in the environmentimport sys
 import os
 import boto3
 from botocore.exceptions import NoCredentialsError
 
+# Check for required environment variable
 try:  
-  os.environ['S3_BUCKET_NAME']
+    bucket_name = os.environ['S3_BUCKET_NAME']
 except KeyError: 
-  print('[error]: `S3_BUCKET_NAME` environment variable required')
-  sys.exit(1)
+    raise EnvironmentError('[error]: `S3_BUCKET_NAME` environment variable required')
 
-bucket_name = os.environ.get('S3_BUCKET_NAME')
+
 s3 = boto3.client('s3')
 
-def add_file(file_object, file_id, prefix = ""):
+def add_file(file_object, file_id, prefix=""):
+    """
+    Uploads a file to the specified S3 bucket.
+    :param file_object: The file object to upload.
+    :param file_id: The ID (filename) for the file in S3.
+    :param prefix: Optional folder path in the bucket.
+    :return: The file ID if successful, or an error message.
+    """
     try:
-        if prefix:
-            key = prefix + "/" + file_id
-        else:
-            key = file_id
-
-
-        # Upload to S3 using the hash as the key
-        s3.upload_fileobj(
-            Fileobj=file_object,
-            Bucket=bucket,
-            Key=key,
-        )
-
+        key = f"{prefix}/{file_id}" if prefix else file_id
+        s3.upload_fileobj(Fileobj=file_object, Bucket=bucket_name, Key=key)
         return file_id
     except NoCredentialsError:
         return "Credentials not available"
 
-
-def get_url_from_s3(file_id, prefix = ""):
+def get_url_from_s3(file_id, prefix=""):
+    """
+    Generates a presigned URL for a file in S3.
+    :param file_id: The ID (filename) of the file in S3.
+    :param prefix: Optional folder path in the bucket.
+    :return: A presigned URL if successful, or an error message.
+    """
     try:
-        if not bucket:
-            bucket = bucket_name
-        if prefix:
-            key = prefix + "/" + file_id
-        else:
-            key = file_id
-        # Generate the S3 URL for downloading the file (URL will expire after 1 hour)
-        url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=3600)
+        key = f"{prefix}/{file_id}" if prefix else file_id
+        url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': key}, ExpiresIn=3600)
         return url
     except NoCredentialsError:
         return "Credentials not available"
