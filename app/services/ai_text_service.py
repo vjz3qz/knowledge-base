@@ -9,14 +9,17 @@ except KeyError:
 
 
 api_key = os.environ.get('OPENAI_API_KEY')
-# TODO update to 4
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k",
+llm = ChatOpenAI(temperature=0, model_name="gpt-4-1106-preview",
                  openai_api_key=api_key)
 
-def generate_embedding(text):
+def generate_image_summary(image):
+    pass
+
+def generate_video_transcript(video):
     pass
 
 def llm_inference(query, search_results):
 
     # calls openai endpoint to respond based on context
     pass
+
