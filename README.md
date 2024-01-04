@@ -1,8 +1,13 @@
 # Trace AI Flask Server Logic
 
 
+TODO
+create seed.sql and configure migrations
+finish search methods in database_service.py
 
-media_component_association = db.Table('media_component_association',
+
+
+component_media_association = db.Table('component_media_association',
     db.Column('media_id', db.BIGINT, db.ForeignKey('media.id'), primary_key=True),
     db.Column('component_id', db.BIGINT, db.ForeignKey('component.id'), primary_key=True)
 )

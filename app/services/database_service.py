@@ -8,7 +8,7 @@ import os
 import secrets
 from app.services.blob_storage_service import add_file
 
-
+# TODO check if all supabase logic is correct
 def init_db():
     """
     Connect to Supabase project
@@ -21,6 +21,7 @@ def init_db():
 supabase = init_db() 
 
 def search_components(query):
+    
     pass
 
 def search_media(query):
@@ -40,6 +41,7 @@ def add_file_to_media(media_id, file, file_type):
     # split file into chunks
     docs = load_and_split(file_id, media_id, file_type)
     # TODO set appropriate metadata for each chunk 
+
     # create embedding for file and add to supabase
     vector_store = SupabaseVectorStore.from_documents(
         docs,
@@ -63,7 +65,10 @@ def create_media(author, title, description, component_ids):
                                                   'document_ids': [],
                                                   'text_search_vector':text_search_vector,
                                                   }).execute()
-    # TODO update association table which maps component ids to media id
+    for component_id in component_ids:
+        data, count = supabase.table('component_media_association').insert({'media_id': media_id,
+                                                                            'component_id': component_id,
+                                                                            }).execute()
     
 
 def create_component(title, description, location):
