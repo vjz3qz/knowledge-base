@@ -12,12 +12,13 @@ except KeyError:
 
 s3 = boto3.client('s3')
 
-def add_file(file_object, file_id, prefix=""):
+def add_file(file_object, file_id, media_id, file_type):
     """
     Uploads a file to the specified S3 bucket.
     :param file_object: The file object to upload.
     :param file_id: The ID (filename) for the file in S3.
-    :param prefix: Optional folder path in the bucket.
+    :param media_id: Which media object the file should be stored under.
+    :param file_type: The type of file being uploaded (image, video, document, etc.)
     :return: The file ID if successful, or an error message.
     """
     try:
@@ -27,11 +28,12 @@ def add_file(file_object, file_id, prefix=""):
     except NoCredentialsError:
         return "Credentials not available"
 
-def get_url_from_s3(file_id, prefix=""):
+def get_url_from_s3(file_id, media_id, file_type):
     """
     Generates a presigned URL for a file in S3.
     :param file_id: The ID (filename) of the file in S3.
-    :param prefix: Optional folder path in the bucket.
+    :param media_id: Which media object the file is be stored under.
+    :param file_type: The type of file being retrieved (image, video, document, etc.)
     :return: A presigned URL if successful, or an error message.
     """
     try:
