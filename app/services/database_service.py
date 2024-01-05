@@ -33,8 +33,10 @@ def search_media(query):
 def add_file_to_media(media_id, file, file_type):
     # file_id = generate_id()
     file_id = generate_id()
+    # if video or image, generate transcript or summary
+    text = generate_text(file, file_type)
     # upload trace-ai bucket at <media_id>/<file_type>/<file_id>
-    add_file(file, file_id, media_id, file_type)
+    add_file(file, file_id, media_id, file_type, text)
     # add file_id to media_id's corresponding file_type array in supabase
     original_data = supabase.table('media').select(f'{file_type}_ids').eq('id', media_id).execute().data
     updated_data, count = (supabase.table('media')
