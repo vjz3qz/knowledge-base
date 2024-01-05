@@ -106,7 +106,7 @@ def view_file():
     file_type = request.args.get('file_type', '')
     media_id = request.args.get('media_id', '')
     try:
-        file_url = fetch_file_url(file_id, media_id, file_type)
+        file_url = fetch_file_url(file_id, file_type, media_id)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
