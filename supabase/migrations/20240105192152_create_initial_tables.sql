@@ -30,7 +30,7 @@ CREATE TABLE media (
   video_ids TEXT[],
   document_ids TEXT[],
   text_search_vector TSVECTOR,
-  FOREIGN KEY (author) REFERENCES users(id)
+  -- FOREIGN KEY (author) REFERENCES users(id)
 );
 
 -- Create the tsvector index for the media table

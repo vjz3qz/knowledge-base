@@ -1,7 +1,7 @@
 from . import v1
 
 from flask import request, jsonify
-
+# TODO support user creation and authentication
 
 @v1.route('/search-component', methods=['GET'])
 def search_component():
@@ -12,7 +12,7 @@ def search_component():
     query (str): The search string.
 
     Returns:
-    list: A list of component items that match the search criteria, including IDs, summaries, and other relevant metadata.
+    list: A list of component records that match the search criteria.
     """
     query = request.args.get('query', '')
     try:
@@ -34,12 +34,12 @@ def search_media():
     component_id (str): The ID of the component to search.
 
     Returns:
-    list: A list of media items that match the search criteria, including IDs, summaries, and other relevant metadata.
+    list: A list of media records that match the search criteria.
     """
     query = request.args.get('query', '')
     component_id = request.args.get('component_id', '')
     try:
-        results = combined_search_media(query, component_id)
+        results = media_search(query, component_id)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
@@ -50,7 +50,7 @@ def search_media():
 @v1.route('/view-component', methods=['GET'])
 def view_component():
     """
-    Endpoint for viewing a component object.
+    Endpoint for viewing a component record.
 
     Parameters:
     component_id: component ID for the viewing session.
@@ -60,18 +60,18 @@ def view_component():
     """
     component_id = request.args.get('component_id', '')
     try:
-        viewing_session = fetch_component_object(component_id)
+        component_record = fetch_component_record(component_id)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
         return jsonify({"error": "Server error"}), 500
-    return jsonify(viewing_session)
+    return jsonify(component_record)
 
 
 @v1.route('/view-media', methods=['GET'])
 def view_media():
     """
-    Endpoint for viewing a media object.
+    Endpoint for viewing a media record.
 
     Parameters:
     media_id: media ID for the viewing session.
@@ -81,18 +81,18 @@ def view_media():
     """
     media_id = request.args.get('media_id', '')
     try:
-        viewing_session = fetch_media_object(media_id)
+        media_record = fetch_media_record(media_id)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
         return jsonify({"error": "Server error"}), 500
-    return jsonify(viewing_session)
+    return jsonify(media_record)
     
 
 @v1.route('/view-file', methods=['GET'])
 def view_file():
     """
-    Endpoint for viewing a file object.
+    Endpoint for viewing a file via url.
 
     Parameters:
     file_id: file ID for the viewing session.
@@ -120,26 +120,23 @@ def create_component():
     Endpoint for creating a new component item.
 
     Parameters:
-    author (str): Author of the component.
     title (str): Title of the component.
     description (str): Actual content or summary.
     location (str): Location of the component.
-    media_list (str): media associated with the component.
 
     Returns:
-    JSON: A JSON object containing the confirmation of creation, including the hash of the new component item.
+    JSON: A JSON object containing the confirmation of creation, including the id of the new component record.
     """
-    author = request.json['author']
     title = request.json['title']
     description = request.json['description']
-    media_list = request.json['media_list']
+    location = request.json['location']
     try:
-        media_id = create_new_component(author, title, description, media_list)
+        component_id = create_new_component(title, description, location)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
         return jsonify({"error": "Server error"}), 500
-    return jsonify(media_id)
+    return jsonify(component_id)
     
 
 @v1.route('/create-media', methods=['POST'])
@@ -154,7 +151,7 @@ def create_media():
     component_ids (str): Component associated with the media.
 
     Returns:
-    JSON: A JSON object containing the confirmation of creation, including the ID of the new media item.
+    JSON: A JSON object containing the confirmation of creation, including the ID of the new media record.
     """
     author = request.json['author']
     title = request.json['title']
@@ -182,11 +179,11 @@ def add_file():
     Returns:
     JSON: A JSON object containing the confirmation of addition, including the ID of the new file item.
     """
-    file_type = request.json['file_type']
     file_data = request.json['file_data']
+    file_type = request.json['file_type']
     media_id = request.json['media_id']
     try:
-        file_id = add_new_file(file_type, file_data, media_id)
+        file_id = add_new_file(file_data, file_type, media_id)
     except Exception as e:
         # Optionally log the exception (not shown here)
         print(e)
