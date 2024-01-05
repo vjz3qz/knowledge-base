@@ -27,6 +27,30 @@ def search_media(query):
     results = data[1]
     return results
 
+
+def create_component(component_id, title, description, location):
+    data, count = supabase.table('components').insert({'id': component_id,
+                                                      'title': title,
+                                                      'description': description,
+                                                      'location': location,
+                                                      }).execute()
+
+
+def create_media(media_id, author, title, description, component_ids):
+    data, count = supabase.table('media').insert({'id': media_id,
+                                                  'author': author,
+                                                  'title': title,
+                                                  'description': description,
+                                                  'image_ids': [],
+                                                  'video_ids': [],
+                                                  'document_ids': [],
+                                                  }).execute()
+    for component_id in component_ids:
+        data, count = supabase.table('component_media_association').insert({'media_id': media_id,
+                                                                            'component_id': component_id,
+                                                                            }).execute()
+
+
 def add_file_to_media(file_id, file_type, media_id):
     # add file_id to media_id's corresponding file_type array in supabase
     original_data = supabase.table('media').select(f'{file_type}_ids').eq('id', media_id).execute().data
@@ -49,31 +73,6 @@ def add_file_to_media(file_id, file_type, media_id):
         chunk_size=500,
     )
     return
-
-def create_media(author, title, description, component_ids):
-    media_id = generate_id()
-    data, count = supabase.table('media').insert({'id': media_id,
-                                                  'author': author,
-                                                  'title': title,
-                                                  'description': description,
-                                                  'image_ids': [],
-                                                  'video_ids': [],
-                                                  'document_ids': [],
-                                                  }).execute()
-    for component_id in component_ids:
-        data, count = supabase.table('component_media_association').insert({'media_id': media_id,
-                                                                            'component_id': component_id,
-                                                                            }).execute()
-    
-
-def create_component(title, description, location):
-    component_id = generate_id()
-    data, count = supabase.table('components').insert({'id': component_id,
-                                                      'title': title,
-                                                      'description': description,
-                                                      'location': location,
-                                                      }).execute()
-
 
 
 def get_media_by_id(id):
