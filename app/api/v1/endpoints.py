@@ -210,15 +210,3 @@ def assistant_chat():
         print(e)
         return jsonify({"error": "Server error"}), 500
     return jsonify(assistant_response)
-
-
-
-@v1.route('/test_db')
-def test_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM media LIMIT 1;')  # Replace with your table name
-    data = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return str(data)
