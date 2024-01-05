@@ -21,13 +21,11 @@ def init_db():
 supabase = init_db() 
 
 def search_components(query):
-    # TODO create combined text search vector column with title, description, and location
     data, count = supabase.table('component').select('*').text_search('text_search_vector', query).execute()
     results = data[1]
     return results
 
 def search_media(query):
-    # TODO create combined text search vector column with title, description
     data, count = supabase.table('media').select('*').text_search('text_search_vector', query).execute()
     results = data[1]
     return results
@@ -45,15 +43,16 @@ def add_file_to_media(media_id, file, file_type):
     .execute())
     # split file into chunks
     docs = load_and_split(file_id, media_id, file_type)
-    # TODO set appropriate metadata for each chunk 
-
+    # set appropriate metadata for each chunk 
+    for doc in docs:
+        doc.metadata = { 'media_id': media_id, 'file_id': file_id, 'file_type': file_type }
     # create embedding for file and add to supabase
     vector_store = SupabaseVectorStore.from_documents(
         docs,
         OpenAIEmbeddings(),
         client=supabase,
-        table_name="documents",
-        query_name="match_documents",
+        table_name="embeddings",
+        query_name="match_embeddings",
         chunk_size=500,
     )
     return
@@ -76,7 +75,7 @@ def create_media(author, title, description, component_ids):
 
 def create_component(title, description, location):
     component_id = generate_id()
-    data, count = supabase.table('component').insert({'id': component_id,
+    data, count = supabase.table('components').insert({'id': component_id,
                                                       'title': title,
                                                       'description': description,
                                                       'location': location,
@@ -89,7 +88,7 @@ def get_media_by_id(id):
     return response
 
 def get_component_by_id(id):
-    response = supabase.table('component').select('*').eq('id', id).execute()
+    response = supabase.table('components').select('*').eq('id', id).execute()
     return response
 
 def similarity_search(query):
@@ -110,8 +109,8 @@ def similarity_search(query):
     vector_store = SupabaseVectorStore(
         embedding=embeddings,
         client=supabase,
-        table_name="documents",
-        query_name="match_documents",
+        table_name="embeddings",
+        query_name="match_embeddings",
     )
     matched_docs = vector_store.similarity_search(query)
     return matched_docs

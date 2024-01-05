@@ -79,18 +79,18 @@ CREATE TABLE component_media_association (
 CREATE TABLE embeddings (
   id VARCHAR(64) PRIMARY KEY,
   content TEXT,
-  metadata JSONB,
-  embedding vector (1536)
-); -- FIND WAY TO CREATE FOREIGN KEY INSTEAD OF STORING IN METADATA
+  metadata jsonb,
+  embedding vector(1536) 
+);
 
--- Create a function to search for documents
+-- Create a function to search for content
 create function match_embeddings (
   query_embedding vector (1536),
   filter jsonb default '{}'
 ) returns table (
   id VARCHAR(64),
-  content TEXT,
-  metadata JSONB,
+  content text,
+  metadata jsonb,
   similarity float
 ) language plpgsql as $$
 #variable_conflict use_column
@@ -106,3 +106,51 @@ begin
   order by embeddings.embedding <=> query_embedding;
 end;
 $$;
+
+-- -- Create embedding table
+-- CREATE TABLE embeddings (
+--   id VARCHAR(64) PRIMARY KEY,
+--   content TEXT,
+--   media_id VARCHAR(64),
+--   file_type VARCHAR(50),
+--   file_id VARCHAR(64),
+--   embedding vector(1536),
+--   FOREIGN KEY (media_id) REFERENCES media(id)
+-- );
+
+-- -- Create a function to search for content with column filters
+-- CREATE FUNCTION match_embeddings (
+--   query_embedding vector(1536),
+--   filter jsonb DEFAULT '{}'
+-- ) RETURNS TABLE (
+--   id VARCHAR(64),
+--   content TEXT,
+--   media_id VARCHAR(64),
+--   file_type VARCHAR(50),
+--   file_id VARCHAR(64),
+
+--   similarity FLOAT
+-- ) LANGUAGE plpgsql AS $$
+-- BEGIN
+--   RETURN QUERY
+--   SELECT
+--     id,
+--     content,
+--     media_id,
+--     file_type,
+--     file_id,
+--     1 - (embeddings.embedding <=> query_embedding) AS similarity
+--   FROM embeddings
+--   WHERE media_id IS NOT NULL
+--     AND file_type IS NOT NULL
+--     AND file_id IS NOT NULL
+--     AND embeddings.embedding IS NOT NULL
+--     AND media_id <> ''
+--     AND file_type <> ''
+--     AND file_id <> ''
+--     AND media_id = filter->>'media_id'
+--     AND file_type = filter->>'file_type'
+--     AND file_id = filter->>'file_id'
+--   ORDER BY embeddings.embedding <=> query_embedding;
+-- END;
+-- $$;
