@@ -21,11 +21,16 @@ def init_db():
 supabase = init_db() 
 
 def search_components(query):
-    
-    pass
+    # TODO create combined text search vector column with title, description, and location
+    data, count = supabase.table('component').select('*').text_search('text_search_vector', query).execute()
+    results = data[1]
+    return results
 
 def search_media(query):
-    pass
+    # TODO create combined text search vector column with title, description
+    data, count = supabase.table('media').select('*').text_search('text_search_vector', query).execute()
+    results = data[1]
+    return results
 
 def add_file_to_media(media_id, file, file_type):
     # file_id = generate_id()
@@ -55,7 +60,6 @@ def add_file_to_media(media_id, file, file_type):
 
 def create_media(author, title, description, component_ids):
     media_id = generate_id()
-    text_search_vector = [] # TODO add text search vector
     data, count = supabase.table('media').insert({'id': media_id,
                                                   'author': author,
                                                   'title': title,
@@ -63,7 +67,6 @@ def create_media(author, title, description, component_ids):
                                                   'image_ids': [],
                                                   'video_ids': [],
                                                   'document_ids': [],
-                                                  'text_search_vector':text_search_vector,
                                                   }).execute()
     for component_id in component_ids:
         data, count = supabase.table('component_media_association').insert({'media_id': media_id,
@@ -73,12 +76,10 @@ def create_media(author, title, description, component_ids):
 
 def create_component(title, description, location):
     component_id = generate_id()
-    text_search_vector = [] # TODO add text search vector
     data, count = supabase.table('component').insert({'id': component_id,
                                                       'title': title,
                                                       'description': description,
                                                       'location': location,
-                                                        'text_search_vector':text_search_vector,
                                                       }).execute()
 
 
