@@ -30,13 +30,7 @@ def search_media(query):
     results = data[1]
     return results
 
-def add_file_to_media(media_id, file, file_type):
-    # file_id = generate_id()
-    file_id = generate_id()
-    # if video or image, generate transcript or summary
-    text = generate_text(file, file_type)
-    # upload trace-ai bucket at <media_id>/<file_type>/<file_id>
-    add_file(file, file_id, media_id, file_type, text)
+def add_file_to_media(file_id, file_type, media_id):
     # add file_id to media_id's corresponding file_type array in supabase
     original_data = supabase.table('media').select(f'{file_type}_ids').eq('id', media_id).execute().data
     updated_data, count = (supabase.table('media')
@@ -47,7 +41,7 @@ def add_file_to_media(media_id, file, file_type):
     docs = load_and_split(file_id, media_id, file_type)
     # set appropriate metadata for each chunk 
     for doc in docs:
-        doc.metadata = { 'media_id': media_id, 'file_id': file_id, 'file_type': file_type }
+        doc.metadata = { 'file_id': file_id, 'file_type': file_type, 'media_id': media_id }
     # create embedding for file and add to supabase
     vector_store = SupabaseVectorStore.from_documents(
         docs,
