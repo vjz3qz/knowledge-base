@@ -172,8 +172,8 @@ def add_file():
     Endpoint for adding a new file item.
 
     Parameters:
-    file_type (str): Type of file (image/video/document).
     file_data (str): File data for images/videos/documents (to be stored in S3).
+    file_type (str): Type of file (image/video/document).
     media_id (str): Media associated with the file.
 
     Returns:
