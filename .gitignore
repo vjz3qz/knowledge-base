@@ -34,3 +34,6 @@ vector_database/*
 
 backend/app/__pycache__/
 backend/models/*
+
+
+app/__pycache__/
