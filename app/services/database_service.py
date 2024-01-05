@@ -15,12 +15,15 @@ def init_db():
     supabase: Client = create_client(supabase_url, supabase_key)
     return supabase   
 
+
 supabase = init_db() 
+
 
 def search_components(query):
     data, count = supabase.table('component').select('*').text_search('text_search_vector', query).execute()
     results = data[1]
     return results
+
 
 def search_media(query):
     data, count = supabase.table('media').select('*').text_search('text_search_vector', query).execute()
@@ -75,12 +78,13 @@ def add_file_to_media(file_id, file_type, media_id):
     return
 
 
-def get_media_by_id(id):
-    response = supabase.table('media').select('*').eq('id', id).execute()
+def get_component_by_id(component_id):
+    response = supabase.table('components').select('*').eq('id', component_id).execute()
     return response
 
-def get_component_by_id(id):
-    response = supabase.table('components').select('*').eq('id', id).execute()
+
+def get_media_by_id(media_id):
+    response = supabase.table('media').select('*').eq('id', media_id).execute()
     return response
 
 def similarity_search(query):
