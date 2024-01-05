@@ -1,12 +1,9 @@
 # database_service.py
-from app.utils.id_generator import generate_id
 from flask_sqlalchemy import SQLAlchemy
 from langchain_community.embeddings.openai import OpenAIEmbeddings
 from langchain_community.vectorstores import SupabaseVectorStore
 from supabase.client import Client, create_client
 import os
-import secrets
-from app.services.blob_storage_service import add_file
 
 # TODO check if all supabase logic is correct
 def init_db():
