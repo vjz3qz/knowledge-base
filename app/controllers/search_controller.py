@@ -33,4 +33,3 @@ def media_search(query, component_id):
         Matched docs based on user query
     """
     return search_media(query, component_id)
-    

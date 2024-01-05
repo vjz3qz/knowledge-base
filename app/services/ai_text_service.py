@@ -1,26 +1,27 @@
 from langchain.chat_models import ChatOpenAI
 import os
-from openai import OpenAI 
+from openai import OpenAI
 import whisper
 
 client = OpenAI()
 
 try:
-    os.environ['OPENAI_API_KEY']
+    os.environ["OPENAI_API_KEY"]
 except KeyError:
-    print('[error]: `API_KEY` environment variable required')
+    print("[error]: `API_KEY` environment variable required")
     sys.exit(1)
 
-api_key = os.environ.get('OPENAI_API_KEY')
-llm = ChatOpenAI(temperature=0, model_name="gpt-4-1106-preview",
-                 openai_api_key=api_key)
+api_key = os.environ.get("OPENAI_API_KEY")
+llm = ChatOpenAI(temperature=0, model_name="gpt-4-1106-preview", openai_api_key=api_key)
+
 
 def generate_text(file, file_type):
-    if file_type == 'video':
+    if file_type == "video":
         return generate_video_transcript(file)
-    elif file_type == 'image':
+    elif file_type == "image":
         return generate_image_summary(file)
     return ""
+
 
 def generate_image_summary(image):
     """Generates a summary from an image file with the GPT-4V API.
@@ -33,6 +34,7 @@ def generate_image_summary(image):
     """
     return ""
 
+
 def generate_video_transcript(video):
     """Generates a transcript from a video file with the Whisper API.
 
@@ -43,6 +45,7 @@ def generate_video_transcript(video):
         str: The transcript of the video.
     """
     return ""
+
 
 def llm_inference(query, search_results=[]):
     """Generates a response from the LLM based on the query and search results.
@@ -57,6 +60,7 @@ def llm_inference(query, search_results=[]):
 
     # calls openai endpoint to respond based on context
     return ""
+
 
 # def summarize_image(image_url, prompt="Describe the image in detail. Be specific about symbols and connections."):
 #     response = client.chat.completions.create(
@@ -94,7 +98,7 @@ def llm_inference(query, search_results=[]):
 #         # time_stamps = [(segment['start'], segment['end']) for segment in segments]
 #         time_stamps = [segment['start'] for segment in segments]
 #         texts = [segment['text'] for segment in segments]
-#         return transcript 
+#         return transcript
 #     except Exception as e:
 #         print(e)
 #         return None

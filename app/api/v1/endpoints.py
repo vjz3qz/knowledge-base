@@ -1,9 +1,11 @@
 from . import v1
 
 from flask import request, jsonify
+
 # TODO support user creation and authentication
 
-@v1.route('/search-component', methods=['GET'])
+
+@v1.route("/search-component", methods=["GET"])
 def search_component():
     """
     Endpoint for searching for a component.
@@ -14,7 +16,7 @@ def search_component():
     Returns:
     list: A list of component records that match the search criteria.
     """
-    query = request.args.get('query', '')
+    query = request.args.get("query", "")
     try:
         results = component_search(query)
     except Exception as e:
@@ -24,7 +26,7 @@ def search_component():
     return jsonify(results)
 
 
-@v1.route('/search-media', methods=['GET'])
+@v1.route("/search-media", methods=["GET"])
 def search_media():
     """
     Endpoint for searching the media/history associated with a component.
@@ -36,8 +38,8 @@ def search_media():
     Returns:
     list: A list of media records that match the search criteria.
     """
-    query = request.args.get('query', '')
-    component_id = request.args.get('component_id', '')
+    query = request.args.get("query", "")
+    component_id = request.args.get("component_id", "")
     try:
         results = media_search(query, component_id)
     except Exception as e:
@@ -47,7 +49,7 @@ def search_media():
     return jsonify(results)
 
 
-@v1.route('/view-component', methods=['GET'])
+@v1.route("/view-component", methods=["GET"])
 def view_component():
     """
     Endpoint for viewing a component record.
@@ -58,7 +60,7 @@ def view_component():
     Returns:
     JSON: A JSON object containing the description and the title of the component object.
     """
-    component_id = request.args.get('component_id', '')
+    component_id = request.args.get("component_id", "")
     try:
         component_record = fetch_component_record(component_id)
     except Exception as e:
@@ -68,7 +70,7 @@ def view_component():
     return jsonify(component_record)
 
 
-@v1.route('/view-media', methods=['GET'])
+@v1.route("/view-media", methods=["GET"])
 def view_media():
     """
     Endpoint for viewing a media record.
@@ -79,7 +81,7 @@ def view_media():
     Returns:
     JSON: A JSON object containing the description and the title of the media object.
     """
-    media_id = request.args.get('media_id', '')
+    media_id = request.args.get("media_id", "")
     try:
         media_record = fetch_media_record(media_id)
     except Exception as e:
@@ -87,9 +89,9 @@ def view_media():
         print(e)
         return jsonify({"error": "Server error"}), 500
     return jsonify(media_record)
-    
 
-@v1.route('/view-file', methods=['GET'])
+
+@v1.route("/view-file", methods=["GET"])
 def view_file():
     """
     Endpoint for viewing a file via url.
@@ -102,9 +104,9 @@ def view_file():
     Returns:
     JSON: A JSON object containing the url of the file object.
     """
-    file_id = request.args.get('file_id', '')
-    file_type = request.args.get('file_type', '')
-    media_id = request.args.get('media_id', '')
+    file_id = request.args.get("file_id", "")
+    file_type = request.args.get("file_type", "")
+    media_id = request.args.get("media_id", "")
     try:
         file_url = fetch_file_url(file_id, file_type, media_id)
     except Exception as e:
@@ -114,7 +116,7 @@ def view_file():
     return jsonify(file_url)
 
 
-@v1.route('/create-component', methods=['POST'])
+@v1.route("/create-component", methods=["POST"])
 def create_component():
     """
     Endpoint for creating a new component item.
@@ -127,9 +129,9 @@ def create_component():
     Returns:
     JSON: A JSON object containing the confirmation of creation, including the id of the new component record.
     """
-    title = request.json['title']
-    description = request.json['description']
-    location = request.json['location']
+    title = request.json["title"]
+    description = request.json["description"]
+    location = request.json["location"]
     try:
         component_id = create_new_component(title, description, location)
     except Exception as e:
@@ -137,9 +139,9 @@ def create_component():
         print(e)
         return jsonify({"error": "Server error"}), 500
     return jsonify(component_id)
-    
 
-@v1.route('/create-media', methods=['POST'])
+
+@v1.route("/create-media", methods=["POST"])
 def create_media():
     """
     Endpoint for creating a new media item.
@@ -153,10 +155,10 @@ def create_media():
     Returns:
     JSON: A JSON object containing the confirmation of creation, including the ID of the new media record.
     """
-    author = request.json['author']
-    title = request.json['title']
-    description = request.json['description']
-    component_ids = request.json['component_ids']
+    author = request.json["author"]
+    title = request.json["title"]
+    description = request.json["description"]
+    component_ids = request.json["component_ids"]
     try:
         media_id = create_new_media(author, title, description, component_ids)
     except Exception as e:
@@ -166,7 +168,7 @@ def create_media():
     return jsonify(media_id)
 
 
-@v1.route('/add-file', methods=['POST'])
+@v1.route("/add-file", methods=["POST"])
 def add_file():
     """
     Endpoint for adding a new file item.
@@ -179,9 +181,9 @@ def add_file():
     Returns:
     JSON: A JSON object containing the confirmation of addition, including the ID of the new file item.
     """
-    file_data = request.json['file_data']
-    file_type = request.json['file_type']
-    media_id = request.json['media_id']
+    file_data = request.json["file_data"]
+    file_type = request.json["file_type"]
+    media_id = request.json["media_id"]
     try:
         file_id = add_new_file(file_data, file_type, media_id)
     except Exception as e:
@@ -191,7 +193,7 @@ def add_file():
     return jsonify(file_id)
 
 
-@v1.route('/assistant-chat', methods=['POST'])
+@v1.route("/assistant-chat", methods=["POST"])
 def assistant_chat():
     """
     Endpoint for chatting with the AI Assistant.
@@ -202,7 +204,7 @@ def assistant_chat():
     Returns:
     JSON: A JSON object containing the chat message.
     """
-    query = request.json['query']
+    query = request.json["query"]
     try:
         assistant_response = chat_with_assistant(query)
     except Exception as e:

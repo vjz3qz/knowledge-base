@@ -18,7 +18,7 @@ def fetch_media_record(media_id):
     :return: A media record.
     """
     return get_media_by_id(media_id)
-    
+
 
 def fetch_file_url(file_id, file_type, media_id):
     """
@@ -27,5 +27,3 @@ def fetch_file_url(file_id, file_type, media_id):
     :return: A file url.
     """
     return get_file(file_id, file_type, media_id)
-
-

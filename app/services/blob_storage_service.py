@@ -4,13 +4,14 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 
 # Check for required environment variable
-try:  
-    bucket_name = os.environ['S3_BUCKET_NAME']
-except KeyError: 
-    raise EnvironmentError('[error]: `S3_BUCKET_NAME` environment variable required')
+try:
+    bucket_name = os.environ["S3_BUCKET_NAME"]
+except KeyError:
+    raise EnvironmentError("[error]: `S3_BUCKET_NAME` environment variable required")
 
 
-s3 = boto3.client('s3')
+s3 = boto3.client("s3")
+
 
 def add_file(file_object, file_id, file_type, media_id, text=""):
     """
@@ -22,7 +23,7 @@ def add_file(file_object, file_id, file_type, media_id, text=""):
     :return: The file ID if successful, or an error message.
     """
     try:
-        if file_type == 'video' or file_type == 'image':
+        if file_type == "video" or file_type == "image":
             key = get_text_file_path(file_id, file_type, media_id)
             s3.upload_fileobj(Fileobj=text, Bucket=bucket_name, Key=key)
         key = get_file_path(file_id, file_type, media_id)
@@ -31,6 +32,7 @@ def add_file(file_object, file_id, file_type, media_id, text=""):
         return file_id
     except NoCredentialsError:
         return "Credentials not available"
+
 
 def get_file(file_id, file_type, media_id):
     """
@@ -42,10 +44,13 @@ def get_file(file_id, file_type, media_id):
     """
     try:
         key = get_file_path(file_id, file_type, media_id)
-        url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': key}, ExpiresIn=3600)
+        url = s3.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket_name, "Key": key}, ExpiresIn=3600
+        )
         return url
     except NoCredentialsError:
         return "Credentials not available"
+
 
 def get_text_file(file_id, file_type, media_id):
     """
@@ -57,10 +62,13 @@ def get_text_file(file_id, file_type, media_id):
     """
     try:
         key = get_text_file_path(file_id, file_type, media_id)
-        url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': key}, ExpiresIn=3600)
+        url = s3.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket_name, "Key": key}, ExpiresIn=3600
+        )
         return url
     except NoCredentialsError:
         return "Credentials not available"
+
 
 def get_file_path(file_id, file_type, media_id):
     """
@@ -71,9 +79,10 @@ def get_file_path(file_id, file_type, media_id):
     :return: The path for the file.
     """
     key = f"{media_id}/{file_type}/{file_id}"
-    if file_type == 'video' or file_type == 'image':
+    if file_type == "video" or file_type == "image":
         key = f"{media_id}/{file_type}/{file_type}/{file_id}"
     return key
+
 
 def get_text_file_path(file_id, file_type, media_id):
     """
@@ -84,8 +93,8 @@ def get_text_file_path(file_id, file_type, media_id):
     :return: The path for the text file.
     """
     key = f"{media_id}/{file_type}/{file_id}"
-    if file_type == 'video':
+    if file_type == "video":
         key = f"{media_id}/{file_type}/transcript/{file_id}"
-    elif file_type == 'image':
+    elif file_type == "image":
         key = f"{media_id}/{file_type}/summary/{file_id}"
     return key

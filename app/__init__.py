@@ -15,6 +15,6 @@ def create_app():
     # Configuration, blueprints registration, etc.
     logging.basicConfig(level=logging.DEBUG)
     # Registering the v1 blueprint
-    app.register_blueprint(v1_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(v1_blueprint, url_prefix="/api/v1")
 
     return app

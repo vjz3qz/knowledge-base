@@ -1,7 +1,12 @@
 from app.utils.id_generator import generate_id
 from app.services.text_generation_service import generate_text
 from app.services.blob_storage_service import add_file
-from app.services.database_service import create_component, create_media, add_file_to_media
+from app.services.database_service import (
+    create_component,
+    create_media,
+    add_file_to_media,
+)
+
 
 def create_new_component(title, description, location):
     # generate a unique id
